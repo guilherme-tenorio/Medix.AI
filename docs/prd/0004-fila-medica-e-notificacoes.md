@@ -1,63 +1,60 @@
-# PRD 0004: Fila médica e notificações
+# PRD 0004: Fila médica, disponibilidade e notificações
 
 - **Status:** Proposto
-- **Data:** 2026-11-19
-- **Especificações:** [Spec 0008](../specs/0008-fila-clinica.md) e [Spec 0013](../specs/0013-notificacoes-e-alertas.md)
-- **Fonte:** `docs/DocumentoRequisitoMEDIX.AI (3).md`
+- **Data:** 2026-11-23
+- **Especificações:** [Spec 0008](../specs/0008-fila-clinica.md), [Spec 0013](../specs/0013-notificacoes-e-alertas.md) e [Spec 0015](../specs/0015-gestao-de-administradores-e-monitoramento.md)
+- **Fonte:** `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
 
 ## Objetivo
 
-Permitir que médicos credenciados acompanhem e priorizem atendimentos pendentes e que pacientes, responsáveis e profissionais recebam avisos sobre eventos relevantes do atendimento.
+Organizar o atendimento médico por prioridade e disponibilidade, comunicar eventos aos usuários e permitir que administradores acompanhem a operação e auditem atividades.
 
 ## Perfis de uso
 
 | Perfil | Quem é | O que precisa fazer |
 |---|---|---|
-| Médico credenciado | Profissional disponível para atendimento | Consultar a fila, aceitar chamados e acompanhar seus estados |
-| Paciente ou responsável | Pessoa vinculada ao atendimento | Receber avisos e acessar o chat, receita ou orientação correspondente |
-| Administrador | Operador da plataforma | Consultar eventos e status de entrega conforme suas permissões |
+| Médico credenciado | Profissional homologado | Definir disponibilidade e atender casos encaminhados |
+| Paciente ou responsável | Pessoa vinculada ao atendimento | Receber avisos e acessar o fluxo correspondente |
+| Administrador | Operador autorizado | Gerir contas administrativas, acompanhar indicadores e consultar auditoria |
 
 ## Requisitos funcionais
 
-### Fila clínica
+### Fila e disponibilidade médica
 
-- **RF-01:** O médico disponível pode consultar uma fila de pacientes triados, ordenada primeiro pela gravidade indicada pelas cores e, entre casos da mesma cor, pelo tempo de espera, conforme a fonte. (Fonte: RF011)
-- **RF-02:** Antes de aceitar um chamado, o painel mostra apenas o identificador resumido previsto na fonte; o médico pode filtrar a fila por cor, tempo de espera e identificador. (Fonte: RF011)
-- **RF-03:** O sistema atualiza o status do chamado ao ser aceito e conforme o atendimento avança, e ajusta a disponibilidade do médico conforme o fluxo descrito na fonte. (Fonte: RF011)
+- **RF-01:** A fila separa atendimentos síncronos e revisões de prescrição; ordena a fila clínica por Laranja, Amarela, Verde e Branca e desempata pelo maior tempo de espera. (Fonte: RF018)
+- **RF-02:** Antes de aceitar o atendimento, a fila apresenta somente dados parciais anonimizados; após aceite, disponibiliza os dados autorizados do paciente. (Fonte: RF018)
+- **RF-03:** No painel acessado pelo navegador, o médico define status Disponível/Online, Pausa ou Offline e atualiza o telefone de contato operacional. Somente médico com CRM homologado e certificado ICP-Brasil válido pode ficar Online; Offline impede novos chamados sem cancelar atendimentos em curso. O painel registra com data/hora entradas e saídas de plantão e atendimentos; administradores autorizados consultam médicos em plantão ativo. (Fonte: RF019, RF022, RNF009)
 
-### Notificações e alertas
+### Notificações e administração
 
-- **RF-04:** O sistema notifica pacientes, responsáveis e profissionais sobre eventos do atendimento, incluindo início de chat, liberação de receita aprovada e alertas previstos na fonte. (Fonte: RF012)
-- **RF-05:** O usuário pode configurar os tipos e canais de notificação disponíveis; notificações informativas lidas podem ser removidas, enquanto mensagens críticas permanecem no registro de auditoria. (Fonte: RF012)
-- **RF-06:** O usuário autorizado pode pesquisar notificações por usuário, canal, período e status de entrega. (Fonte: RF012)
+- **RF-04:** O sistema envia notificações por Push, SMS, e-mail e WhatsApp para eventos relevantes, com links profundos para o fluxo associado; mensagens em tela bloqueada mascaram dados clínicos. O usuário personaliza canais preferenciais e pode remover notificações lidas da central. (Fonte: RF020)
+- **RF-05:** Se uma notificação Push de chamada não tiver confirmação em 30 segundos, o sistema envia SMS de fallback. (Fonte: RF020)
+- **RF-06:** Administradores consultam histórico de notificações enviadas e estados de entrega conforme permissões. A pesquisa de auditoria permite filtrar por período, CPF/CRM do operador, tipo de evento e severidade; registros incluem autor, data/hora, IP e ação e não podem ser alterados ou apagados. O histórico de notificações permanece pesquisável no painel administrativo. (Fonte: RF020, RF022)
+- **RF-07:** O administrador acompanha painel operacional atualizado com volume da fila, tempo de espera, emergências e gargalos; consulta trilha imutável por operador, período e evento. (Fonte: RF022)
+- **RF-08:** O sistema impede que o último administrador ativo desative a própria conta. (Fonte: RF022)
 
 ## Requisitos não funcionais
 
-- **RNF-01 (tempo real):** Atualizações da fila e sincronização de mensagens/status do chat devem respeitar a latência máxima de 1 segundo especificada na fonte. (Fonte: RNF004)
-- **RNF-02 (urgência):** Notificações urgentes devem ser disparadas em até 2 segundos, conforme a fonte. (Fonte: RNF003)
-- **RNF-03 (disponibilidade e fallback):** A plataforma deve manter a disponibilidade de 99,5% em regime 24/7 para triagem e encaminhamento de emergência; se uma notificação push de chamada médica não for confirmada em 30 segundos, deve ser acionado SMS alternativo. (Fonte: RNF005)
-- **RNF-04 (auditoria):** Eventos críticos e acessos relacionados devem manter trilha de auditoria imutável, conforme as regras de controle de acesso da fonte. (Fonte: RNF007)
-- **RNF-05 (compatibilidade):** O painel clínico/administrativo deve funcionar nos navegadores e telas responsivas descritos na fonte. (Fonte: RNF009)
+- **RNF-01 (tempo real):** Atualizações da fila e sincronização do chat devem respeitar latência máxima de 1 segundo conforme a fonte. (Fonte: RNF004)
+- **RNF-02 (urgência):** Alertas urgentes devem ser disparados em até 2 segundos. (Fonte: RNF003)
+- **RNF-03 (disponibilidade e fallback):** Triagem e encaminhamento de emergência devem manter disponibilidade de 99,5% em regime 24/7; Push sem confirmação em 30 segundos aciona SMS. (Fonte: RNF005, RF020)
+- **RNF-04 (auditoria):** Eventos críticos e acessos relacionados mantêm trilha de auditoria imutável. (Fonte: RNF007)
+- **RNF-05 (compatibilidade):** Painéis clínico e administrativo funcionam nos navegadores e telas responsivas descritos na fonte. (Fonte: RNF009)
 
 ## Requisitos de segurança
 
-- **RS-01:** Notificações em push e SMS não devem expor diagnósticos ou dados clínicos sensíveis na tela bloqueada; detalhes exigem autenticação ativa. (Fonte: RS005)
-- **RS-02:** O resumo mostrado na fila antes da aceitação do chamado deve preservar a privacidade prevista na fonte; o acesso aos dados clínicos completos deve respeitar a relação autorizada com o atendimento. (Fonte: RF011, RS003)
+- **RS-01:** Notificações Push e SMS não expõem diagnóstico ou dados clínicos sensíveis na tela bloqueada. (Fonte: RS005)
+- **RS-02:** A fila mostra apenas os dados parcialmente anonimizados previstos pela fonte (nome abreviado, idade e sexo) até o aceite; acesso clínico completo respeita vínculo e autorização. (Fonte: RF018, RS003)
+- **RS-03:** Mudanças de disponibilidade, administração e consulta à trilha de auditoria devem ser rastreáveis com autor e data/hora. (Fonte: RF019, RF022, RNF007)
 
 ## Fora do escopo desta versão
 
-O PRD não define a infraestrutura de mensageria, os provedores de push/SMS, algoritmos de escalonamento além da ordem descrita, nem a interface detalhada do painel.
-
-## Critérios de conclusão
-
-- A ordenação da fila, o ciclo de status e as notificações estão descritos com referências aos requisitos de origem.
-- Os prazos de latência, disparo urgente e fallback estão registrados sem serem tratados como equivalentes.
-- O conteúdo exposto em notificações e na fila respeita os limites de privacidade indicados nas fontes.
+O documento não define provedor de mensageria, limiares de gargalo, detalhes visuais do painel ou mecanismo de verificação de CRM/certificado.
 
 ## Dependências, restrições e questões em aberto
 
-- A fonte explica as categorias de prioridade, mas não atribui prioridade aos RFs; este PRD não inventa essa classificação.
-- A fonte estabelece prioridade de gravidade na sequência Laranja, Amarela, Verde e Branca, mas usa também classificação Vermelha para emergência. Confirmar como casos Vermelhos entram ou não na fila; o encaminhamento de emergência está definido no PRD 0002.
-- A fonte exige disparo de alerta urgente em até 2 segundos e fallback de push para SMS após 30 segundos sem confirmação. Esclarecer se os 2 segundos medem criação, envio ou entrega da notificação e como o prazo interage com a confirmação.
-- A fonte diz que notificações críticas permanecem no log de auditoria, mas não define quem pode consultar esse log ou por quanto tempo.
-- Confirmar se o documento-fonte correto é a versão `(3)` utilizada neste PRD; o caminho indicado no pedido, `docs/DocumentoRequisitoMEDIX.AI.md`, não foi encontrado.
+- A fonte não define se casos Vermelhos entram em alguma fila; o PRD 0002 determina encaminhamento de emergência sem fila virtual.
+- Esclarecer se os 2 segundos medem criação, envio ou entrega de alerta urgente.
+- Definir limiares operacionais do painel e frequência de atualização, sem inventá-los na implementação.
+- Confirmar critérios técnicos de validade e revogação de certificado/CRM e o meio de confirmação de entrega Push.
+- Confirmar quem pode consultar registros de auditoria e por quanto tempo serão mantidos.

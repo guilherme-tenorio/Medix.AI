@@ -1,48 +1,64 @@
-# Spec 0005: Cadastro e gestão de médicos e administradores
+# Spec 0005: Cadastro e homologação de médicos
 
 - **Status:** Proposto
 - **Requisitos:** RF-07 e RF-08 do [PRD 0001](../prd/0001-contas-perfis-e-pacientes.md)
 - **Depende de:** [Spec 0003](0003-autenticacao-e-sessao.md)
-- **Fonte complementar:** RF013, RNF007, RS007 e RNF009 de `docs/DocumentoRequisitoMEDIX.AI (3).md`
+- **Fonte:** RF017, RF019, RF021, RNF007, RNF009 e RS007 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
 
-## Pré-condições
+## Separação dos perfis
 
-- Operador é administrador autenticado e ativo.
-- Não existe vínculo ativo duplicado para o profissional a cadastrar.
-- Médico não pode fazer autocadastro público.
+- Pacientes criam a própria conta pelo fluxo de primeiro acesso descrito na Spec 0002.
+- Médicos não têm formulário público de cadastro e não entram pelo cadastro de pacientes.
+- Administrador cria e homologa a conta do médico, que recebe convite e acessa o painel clínico pelo navegador.
 
-## Fluxo principal
+## Dados e validações
 
-1. Administrador escolhe cadastrar médico credenciado ou administrador.
-2. Informa CPF, nome, nascimento, celular, e-mail corporativo e, para médico, CRM e UF.
-3. Sistema valida CPF, e-mail e campos requeridos; para médico, administrador confere documentação e situação regular do CRM/UF.
-4. Após homologação, ativa a conta e entrega senha provisória; no primeiro login o profissional define senha pessoal.
-5. Administrador pode atualizar contato e status. Inativação/suspensão bloqueia imediatamente o acesso clínico e registra autor, data/hora.
+| Campo | Regra |
+|---|---|
+| CPF | Formato/dígitos válidos, único e imutável |
+| Nome | Obrigatório, 3 a 120 caracteres |
+| Nascimento | Data válida e não futura; verificar idade compatível com formação conforme regra a definir |
+| Celular | Formato brasileiro válido |
+| E-mail corporativo | Obrigatório, formato válido e único; recebe convite/login |
+| CRM e UF | Obrigatórios; conferir regularidade junto ao conselho; imutáveis após cadastro |
+| Comprovante CRM | Obrigatório antes da homologação; PDF, PNG ou JPEG |
+| Status | Ativo/Homologado ou Inativo/Suspenso |
+| Senha provisória | Forte, enviada por convite; deve ser trocada no primeiro login |
 
-## Regras e validações
+## Fluxo administrativo
 
-- CPF validado e único; nome entre 3 e 120 caracteres; nascimento válido. Administrador deve ter ao menos 18 anos.
-- CRM/UF são obrigatórios para médico e não podem ser alterados após cadastro; CPF também não pode ser alterado.
-- E-mail é validado e único. Senha provisória segue política descrita na fonte e exige troca no primeiro login.
-- Conta associada a receita ou atendimento não pode ser apagada fisicamente; deve ser inativada.
+1. Administrador autenticado pelo painel web inicia cadastro e informa os dados do profissional.
+2. Service valida campos, duplicidade de CPF/e-mail/CRM e presença do comprovante. Médico não tem acesso enquanto a conta não estiver homologada.
+3. Administrador confirma CRM/UF regular e homologa o cadastro após verificação documental.
+4. Sistema cria perfil Médico, envia convite por e-mail com senha provisória e marca troca obrigatória no primeiro acesso.
+5. Médico autentica-se conforme Spec 0003. O roteamento pós-login leva ao painel clínico web responsivo (fila, chats, plantão e dados autorizados do atendimento).
+6. Administrador pode atualizar os dados permitidos ou suspender/inativar. Suspensão revoga sessões imediatamente e bloqueia acesso clínico; histórico de atendimento/receita é preservado.
 
-## Erros e acesso
+## Disponibilidade e autorização clínica
 
-- Operador que não é administrador ativo: negar acesso sem revelar dados profissionais.
-- Duplicidade, CRM irregular ou dados inválidos: não ativar conta; informar ao administrador o campo ou validação pendente.
-- Conta suspensa/inativa perde acesso a fila, chat, receitas e demais painéis clínicos.
+- Somente médico homologado, ativo, com CRM regular e certificado ICP-Brasil configurado, válido e ativo pode ficar Online.
+- Médico suspenso ou inativo não acessa fila, chats, prontuários ou funções clínicas.
+- O painel só revela dados de pacientes após aceitação/vínculo autorizado do atendimento; consultas e alterações relevantes são auditadas.
+- Cadastro médico é exclusivo de administradores. Administrador não escolhe usar o formulário de cadastro de pacientes para provisionar médico.
 
-## Decisões pendentes
+## Services, acesso e erros
 
-- A fonte exige validação de CRM ativo e conferência documental, mas não define serviço de consulta, documento comprobatório ou periodicidade. Escolher mecanismo e registrar ADR se houver integração estrutural.
-- A fonte exige idade mínima de 18 anos para administradores e idade compatível com a formação para médicos, mas não define como esta última regra é verificada.
-- Não define bootstrap do primeiro administrador nem reativação após suspensão; esclarecer antes desses fluxos.
-- Contratos de formulário, serviço e rota dependem de `docs/arquitetura.md`.
+- Services concentram consultas ao ORM, validações de unicidade, homologação, geração de convite, estado da conta e revogação de sessões; não recebem `request` nem retornam `HttpResponse`.
+- Views são classes baseadas em `django.views.View`; rotas administrativas são protegidas por autenticação e papel Administrador. O painel clínico é protegido por papel Médico.
+- CRM irregular, documento ausente, duplicidade, operador sem permissão ou certificado inválido impede ativação/entrada Online. Mensagens não revelam dados sensíveis a usuários não autorizados.
+- Contas com atendimentos ou receitas nunca são apagadas fisicamente; são suspensas/inativadas.
+
+## Pendências
+
+- A fonte não define provedor de consulta CRM, periodicidade, mecanismo de validação documental, política de certificado, envio/expiração do convite ou bootstrap do primeiro administrador.
+- A verificação de idade compatível com formação médica não tem regra definida.
+- A interface do aplicativo móvel de pacientes não faz parte deste painel Django.
 
 ## Testes
 
-- [ ] Somente administrador ativo cadastra ou altera perfis profissionais.
-- [ ] Médico sem CRM/UF regular não é ativado.
-- [ ] Primeiro login obriga troca da senha provisória.
-- [ ] Inativação bloqueia acesso clínico e gera trilha de auditoria.
-- [ ] Conta com atendimento/receita não é excluída fisicamente.
+- [ ] Apenas administrador ativo cria/homologa médico; autocadastro médico não existe.
+- [ ] Campos, CPF/e-mail/CRM duplicados, documento obrigatório e estado de homologação são validados.
+- [ ] Convite temporário exige troca de senha no primeiro acesso.
+- [ ] Médico acessa painel web; usuário de outro papel não entra nele.
+- [ ] Suspensão revoga sessões e impede novas ações clínicas, preservando prontuários.
+- [ ] Apenas CRM e certificado válidos permitem estado Online.

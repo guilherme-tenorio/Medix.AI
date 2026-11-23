@@ -1,9 +1,9 @@
-# Spec 0004: Cadastro e gestão de dependentes
+﻿# Spec 0004: Cadastro e gestão de dependentes
 
 - **Status:** Proposto
 - **Requisitos:** RF-03, RF-04 e RF-05 do [PRD 0001](../prd/0001-contas-perfis-e-pacientes.md)
 - **Depende de:** [Spec 0002](0002-cadastro-de-pacientes.md), [Spec 0003](0003-autenticacao-e-sessao.md)
-- **Fonte complementar:** RF002, RS001 e RNF007 de `docs/DocumentoRequisitoMEDIX.AI (3).md`
+- **Fonte complementar:** RF002, RF003, RNF007 e RS001 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
 
 ## Pré-condições
 
@@ -44,3 +44,16 @@ O serviço deve validar vínculo e idade do responsável antes de ler ou alterar
 - [ ] CPF não pode ser alterado depois do cadastro.
 - [ ] Responsável não acessa dependente sem vínculo.
 - [ ] Desativar mantém histórico e não executa exclusão física.
+
+
+## Fonte vigente
+
+A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+
+
+## Requisitos atualizados da fonte
+
+- Responsável deve ter 18 anos ou mais; dependente não recebe credenciais próprias nem login. CPF/nome/celular/e-mail do responsável são associados pela sessão ativa. O vínculo legal obrigatório oferece Filho(a), Tutelado/Curatelado e Outro Dependente Legal.
+- Perfil de saúde do dependente inclui os campos descritos na RF003 e conserva versões/auditoria sem exclusão física.
+- CPF do dependente é validado, único entre titulares e dependentes e imutável; nome tem 3–120 caracteres; nascimento não pode ser futuro; descrição de deficiência é obrigatória quando declarada.
+- A fonte não lista todos os vínculos legais aceitos nem os limites biológicos por idade; confirmar catálogo e regras clínicas.

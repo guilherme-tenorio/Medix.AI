@@ -1,8 +1,8 @@
-# Spec 0001: Interação por voz e acessibilidade
+﻿# Spec 0001: Interação por voz e acessibilidade
 
 - **Status:** Proposto
 - **Requisitos:** RF-09 do [PRD 0001](../prd/0001-contas-perfis-e-pacientes.md), RF-05 e RF-06 do [PRD 0002](../prd/0002-triagem-acessibilidade-e-emergencia.md)
-- **Fonte complementar:** RF009, RNF001, RNF002, RNF006 e RS009 de `docs/DocumentoRequisitoMEDIX.AI (3).md`
+- **Fonte complementar:** RF015, RNF001, RNF002, RNF006 e RS009 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
 
 ## Fluxo
 
@@ -34,3 +34,15 @@
 - [ ] Perguntas e orientações são disponibilizadas para leitura sintetizada.
 - [ ] O áudio é descartado após transcrição validada e não aparece no registro persistente.
 - [ ] Falhas de microfone e transcrição apresentam mensagem acessível.
+
+
+## Fonte vigente
+
+A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+
+
+## Requisitos atualizados da fonte
+
+- Voz está disponível em cadastro, dependentes, perfil clínico, triagem, chat e emergência; usuário alterna entre voz e texto a qualquer momento.
+- STT e TTS são em português brasileiro. Transcrição de baixa confiança exige confirmação. Arquivos brutos de áudio são eliminados após transcrição; o texto clínico permanece conforme regras do fluxo.
+- A fonte não define limiar de confiança, fornecedor de STT/TTS nem consentimento específico para gravação; definir antes da integração.

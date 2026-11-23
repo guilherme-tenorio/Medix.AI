@@ -1,9 +1,9 @@
-# Spec 0012: Prontuário e histórico de atendimentos
+﻿# Spec 0012: Prontuário e histórico de atendimentos
 
 - **Status:** Proposto
 - **Requisitos:** RF-06 e RF-07 do [PRD 0003](../prd/0003-atendimento-prescricao-e-prontuario.md)
 - **Depende de:** [Spec 0004](0004-gestao-de-dependentes.md), [Spec 0006](0006-triagem-e-classificacao-de-risco.md), [Spec 0009](0009-chat-medico.md) e [Spec 0011](0011-emissao-e-consulta-de-receita.md)
-- **Fonte complementar:** RF008, RNF006–RNF008, RS001 e RS003 de `docs/DocumentoRequisitoMEDIX.AI (3).md`
+- **Fonte complementar:** RF014, RNF006–RNF008, RS001 e RS003 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
 
 ## Pré-condições
 
@@ -11,8 +11,8 @@
 
 ## Fluxo principal
 
-1. Sistema apresenta eventos em ordem cronológica: triagens, consultas por chat, receitas e alertas de emergência.
-2. Usuário pode filtrar por período, tipo de evento e classificação de cor.
+1. Sistema apresenta eventos em ordem cronológica decrescente: triagens, pareceres, consultas por chat, receitas e emergências.
+2. Usuário pode filtrar por período, tipo de evento, classificação de cor e palavra-chave (até 100 caracteres) em diagnósticos/queixas e medicamentos.
 3. Cada item mostra data/hora, tipo, cor quando houver, profissional envolvido e resumo da conduta.
 4. Titular vê seus registros; responsável vê somente dependentes autorizados; profissional vê prontuário conforme vínculo autorizado de atendimento.
 
@@ -26,7 +26,7 @@
 
 ## Dados e pendências
 
-- Filtros: paciente selecionado, intervalo de datas, tipo de evento (triagem, chat, receita, emergência) e cor.
+- Filtros: paciente selecionado, intervalo de datas, tipo de evento (triagem, parecer, chat, receita, emergência), cor e busca textual.
 - A fonte não define paginação, busca textual, exportação, ordem de eventos com timestamps iguais, alteração de correções nem políticas de acesso de auditoria.
 - Confirmar prazo legal e regras de retenção aplicáveis por tipo de registro antes da implementação.
 - Views não fazem consultas ORM; services filtram e autorizam conforme titular/dependente/profissional.
@@ -38,3 +38,16 @@
 - [ ] Titular/responsável/profissional só acessa registros autorizados.
 - [ ] Tentativa não autorizada é recusada e auditada.
 - [ ] Registro clínico não pode ser apagado nem editado por usuário comum.
+
+
+## Fonte vigente
+
+A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+
+
+## Requisitos atualizados da fonte
+
+- Prontuário inclui triagens, pareceres, receitas, chats e emergências em linha cronológica descendente; registros são imutáveis.
+- Filtros: período, tipo de registro, cor de classificação e palavra-chave. Paciente/responsável acessa apenas o próprio vínculo; médico conforme vínculo autorizado e acesso auditado.
+- Acesso médico registra CRM, data e hora em trilha imutável consultável no painel administrativo.
+- Retenção mínima indicada na fonte é 20 anos. Confirmar a aplicabilidade e política de expurgo legal antes de operacionalizar.

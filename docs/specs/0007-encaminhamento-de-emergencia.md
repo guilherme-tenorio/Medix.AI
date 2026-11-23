@@ -1,9 +1,9 @@
-# Spec 0007: Encaminhamento de emergência
+﻿# Spec 0007: Encaminhamento de emergência
 
 - **Status:** Proposto
 - **Requisitos:** RF-04 do [PRD 0002](../prd/0002-triagem-acessibilidade-e-emergencia.md)
 - **Depende de:** [Spec 0006](0006-triagem-e-classificacao-de-risco.md)
-- **Fonte complementar:** RF007, RNF003, RNF005 e RS004 de `docs/DocumentoRequisitoMEDIX.AI (3).md`
+- **Fonte complementar:** RF012, RF013, RNF003, RNF005 e RS004 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
 
 ## Gatilhos
 
@@ -40,3 +40,15 @@
 - [ ] GPS ativo mostra unidades e rotas ordenadas por proximidade.
 - [ ] GPS desativado não impede alerta e orientação urgente.
 - [ ] Alerta não é atrasado por coleta de localização.
+
+
+## Fonte vigente
+
+A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+
+
+## Requisitos atualizados da fonte
+
+- Alerta Vermelho ocupa a tela, apresenta sintomas e resumo clínico, emite orientação por TTS e cria registro de emergência sem encaminhar a fila virtual.
+- Exibe hospitais/prontos-socorros por distância e oferece rota externa. GPS desativado não remove o alerta: permite ativação ou busca manual por bairro/cidade; lista acompanha localização.
+- Alertas urgentes são disparados em até 2 segundos. A fonte não indica diretório de unidades, integração de mapas ou contato automático com serviço de emergência.

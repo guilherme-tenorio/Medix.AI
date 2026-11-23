@@ -1,9 +1,9 @@
 # PRD 0002: Triagem acessível e encaminhamento de emergência
 
 - **Status:** Proposto
-- **Data:** 2026-11-19
-- **Especificações:** [Spec 0001](../specs/0001-interacao-por-voz-e-acessibilidade.md), [Spec 0006](../specs/0006-triagem-e-classificacao-de-risco.md) e [Spec 0007](../specs/0007-encaminhamento-de-emergencia.md)
-- **Fonte:** `docs/DocumentoRequisitoMEDIX.AI (3).md`
+- **Data:** 2026-11-23
+- **Especificações:** [Spec 0001](../specs/0001-interacao-por-voz-e-acessibilidade.md), [Spec 0006](../specs/0006-triagem-e-classificacao-de-risco.md), [Spec 0007](../specs/0007-encaminhamento-de-emergencia.md), [Spec 0002](../specs/0002-cadastro-de-pacientes.md) e [Spec 0004](../specs/0004-gestao-de-dependentes.md)
+- **Fonte:** `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
 
 ## Objetivo
 
@@ -21,29 +21,33 @@ Permitir que um paciente ou seu responsável relate sintomas, responda a uma ana
 
 ### Anamnese e classificação
 
-- **RF-01:** O paciente ou responsável autorizado pode iniciar uma anamnese conduzida por IA para o titular ou dependente cadastrado, fornecendo sintomas por texto ou voz e usando os dados de saúde disponíveis no perfil. (Fonte: RF003)
-- **RF-02:** Ao concluir a anamnese, o sistema apresenta uma classificação de risco por cor e o fluxo associado, conforme os resultados descritos na fonte: orientação para casos Brancos/Verdes, atendimento médico para Amarelos/Laranjas e encaminhamento presencial urgente para Vermelhos. (Fonte: RF003, RF007)
-- **RF-03:** Uma triagem concluída não pode ser alterada nem excluída; a fonte permite iniciar uma nova triagem sequencial e manter o histórico no prontuário. (Fonte: RF003, RF008)
+- **RF-01:** O paciente ou responsável autorizado pode concluir uma anamnese conversacional por texto ou áudio, informando sintomas, início/duração e intensidade de 0 a 10; a IA pode fazer perguntas adaptativas usando o perfil clínico do paciente. (Fonte: RF004)
+- **RF-02:** Ao concluir a anamnese, o sistema classifica o risco segundo regras determinísticas do Protocolo de Manchester e apresenta relatório com queixas, antecedentes, alergias e respostas. (Fonte: RF005)
+- **RF-03:** O resultado direciona casos Brancos/Verdes para revisão clínica, Amarelos/Laranjas para atendimento síncrono e Vermelhos para emergência sem fila virtual. O paciente não pode alterar as regras ou classificação. (Fonte: RF005)
+- **RF-07:** Durante o alerta Vermelho, o sistema localiza hospitais e prontos-socorros próximos, ordenados por distância, permite abrir rota externa e, sem GPS, mantém o alerta visível e permite busca manual por bairro/cidade. (Fonte: RF013)
+- **RF-08:** Anamnese concluída e classificação são registradas de forma imutável no prontuário; nova avaliação gera registro separado. (Fonte: RF004, RF005, RF014)
 
 ### Emergência e acessibilidade
 
-- **RF-04:** Quando a classificação for Vermelha, o sistema interrompe o fluxo comum e orienta o paciente ou responsável a procurar atendimento presencial urgente, apresentando unidades próximas e rota quando disponíveis. A orientação de emergência não deve depender de GPS ativo. (Fonte: RF003, RF007)
-- **RF-05:** O usuário pode interagir por voz para preencher informações e ouvir orientações faladas, conforme os usos descritos para cadastro, triagem e navegação. (Fonte: RF009)
-- **RF-06:** O aplicativo oferece recursos de acessibilidade e inclusão digital descritos na fonte, incluindo comandos de voz, leitura sintetizada, dicas visuais, alto contraste e fontes legíveis. (Fonte: RF009, RNF001)
+- **RF-04:** Quando a classificação for Vermelha, o sistema interrompe o fluxo comum, exibe alerta em tela cheia com sintomas graves, cria ficha clínica resumida para apresentação no hospital e não envia o caso para fila virtual. (Fonte: RF012)
+- **RF-05:** O usuário pode interagir por voz para preencher cadastros e perfil clínico, conduzir triagem, usar o chat e ouvir orientações de emergência, mantendo alternativa textual. (Fonte: RF015)
+- **RF-06:** O aplicativo oferece comandos de voz e leitura sintetizada em português pausado, dicas visuais, alto contraste, fontes legíveis e mensagens de erro acessíveis. (Fonte: RF015, RNF001, RNF002)
 
 ## Requisitos não funcionais
 
 - **RNF-01 (acessibilidade):** A interface deve atender idosos, pessoas com baixa literacia digital e pessoas com limitações visuais ou motoras por meio dos recursos descritos na fonte. (Fonte: RNF001)
 - **RNF-02 (mensagens de erro):** Mensagens de validação ou indisponibilidade de recursos, como microfone ou GPS, devem ser claras, acessíveis e orientar a ação corretiva. (Fonte: RNF002)
-- **RNF-03 (desempenho):** Cada etapa da anamnese com IA deve responder em até 3 segundos em condições normais de rede; alertas críticos devem ser disparados em até 2 segundos. (Fonte: RNF003)
+- **RNF-03 (desempenho):** Cada etapa da anamnese com IA deve responder em até 5 segundos em condições normais de rede; alertas críticos devem ser disparados em até 2 segundos. (Fonte: RNF003)
 - **RNF-04 (disponibilidade):** Triagem e encaminhamento de emergência devem ter disponibilidade mínima de 99,5% em regime 24/7. (Fonte: RNF005)
 - **RNF-05 (privacidade):** Os dados pessoais e clínicos devem ser protegidos conforme os controles de transmissão e armazenamento especificados pela fonte. O áudio gravado para transcrição deve ser descartado após a conversão em texto. (Fonte: RNF006)
+- **RNF-06 (interoperabilidade):** A anamnese e a classificação comunicam-se com um provedor externo de LLM via API REST sobre HTTPS/JSON, com resposta estruturada; timeout ou indisponibilidade gera mensagem orientativa sem apresentar classificação inventada. (Fonte: RNF010)
 
 ## Requisitos de segurança
 
 - **RS-01:** Antes de iniciar a triagem, o sistema confirma explicitamente o nome, a idade e o vínculo do paciente e associa o atendimento ao CPF validado. (Fonte: RS001)
 - **RS-02:** Sinais de risco crítico devem ter prioridade máxima, impedir o encaminhamento para fila virtual e gerar orientação imediata de deslocamento para atendimento hospitalar, mesmo quando o GPS estiver desativado. (Fonte: RS004)
 - **RS-03:** Arquivos de áudio com relatos clínicos devem ser descartados após transcrição validada; o registro textual permanece protegido no prontuário. (Fonte: RS009)
+- **RS-04:** Antes de enviar contexto clínico ao provedor externo de LLM, o sistema remove identificadores diretos como CPF e nome completo e envia somente atributos clínicos desidentificados descritos na fonte. (Fonte: RNF006, RS010)
 
 ## Fora do escopo desta versão
 
@@ -58,7 +62,7 @@ Este PRD não define diagnóstico, tratamento ou prescrição autônoma pela IA.
 ## Dependências, restrições e questões em aberto
 
 - A fonte explica as categorias de prioridade, mas não atribui prioridade aos RFs; este PRD não inventa essa classificação.
-- A fonte cita o Protocolo de Manchester e cinco cores, incluindo Branca e Vermelha. Confirmar protocolo, versão e validação clínica do conjunto de cores e das regras de classificação antes de especificar a IA.
-- A fonte não define os limites clínicos, conteúdo da anamnese, governança de atualização do protocolo nem validação das respostas da IA. Esses pontos exigem definição clínica responsável; não devem ser inferidos pelo PRD.
-- A fonte pede unidades próximas e rota, mas também determina orientação emergencial mesmo com GPS desativado. Esclarecer a apresentação quando a localização não estiver disponível e qual serviço de emergência, se algum, deve ser acionado.
-- Confirmar se o documento-fonte correto é a versão `(3)` utilizada neste PRD; o caminho indicado no pedido, `docs/DocumentoRequisitoMEDIX.AI.md`, não foi encontrado.
+- A fonte cita o Protocolo de Manchester e cinco cores, incluindo Branca e Vermelha. Confirmar protocolo, versão, red flags completos e validação clínica das regras antes de especificar ou operar a IA.
+- A fonte não define provedor de LLM, política de retenção do contexto no provedor, mecanismo de anonimização reversível para manter conversa, nem resposta clínica de fallback quando a API falhar.
+- A fonte determina que a transcrição com baixa confiança deve ser confirmada, mas não define o limiar de confiança nem o tratamento de erro se a pessoa não puder confirmar.
+- A fonte pede localização por GPS ou busca manual por bairro/cidade e navegação externa, mas não indica fontes de hospitais, cobertura, consentimento ou comportamento quando não há unidade encontrada.

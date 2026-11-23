@@ -1,9 +1,9 @@
 # PRD 0003: Atendimento médico, prescrição e prontuário
 
 - **Status:** Proposto
-- **Data:** 2026-11-19
-- **Especificações:** [Spec 0009](../specs/0009-chat-medico.md), [Spec 0010](../specs/0010-validacao-medica-de-prescricao.md), [Spec 0011](../specs/0011-emissao-e-consulta-de-receita.md) e [Spec 0012](../specs/0012-prontuario-e-historico.md)
-- **Fonte:** `docs/DocumentoRequisitoMEDIX.AI (3).md`
+- **Data:** 2026-11-23
+- **Especificações:** [Spec 0009](../specs/0009-chat-medico.md), [Spec 0010](../specs/0010-validacao-medica-de-prescricao.md), [Spec 0011](../specs/0011-emissao-e-consulta-de-receita.md), [Spec 0012](../specs/0012-prontuario-e-historico.md) e [Spec 0014](../specs/0014-verificacao-e-dispensacao-de-receita.md)
+- **Fonte:** `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
 
 ## Objetivo
 
@@ -21,16 +21,19 @@ Dar continuidade aos casos encaminhados para avaliação de um médico, permitir
 
 ### Avaliação e receita
 
-- **RF-01:** Para casos Brancos/Verdes, o médico credenciado pode revisar a anamnese e a prescrição sugerida pela IA, editar a sugestão e aprová-la formalmente antes da liberação. (Fonte: RF004)
-- **RF-02:** Após aprovação médica, o paciente pode consultar e baixar a receita digital e apresentar seu código de validação na farmácia. (Fonte: RF005)
-- **RF-03:** A receita deve permitir verificação de autenticidade por QR Code e assinatura digital, conforme os requisitos legais e de segurança registrados na fonte. (Fonte: RF005, RNF008, RS002)
-- **RF-04:** A sugestão de prescrição deve ser comparada com alergias e comorbidades registradas, e o médico deve receber o alerta crítico descrito na fonte antes de assinar quando houver incompatibilidade. (Fonte: RS006)
+- **RF-01:** Para casos Brancos/Verdes, o médico credenciado pode revisar a anamnese, classificação, perfil clínico e alergias, registrar parecer obrigatório e aprovar, ajustar, rejeitar ou reclassificar a conduta. (Fonte: RF006)
+- **RF-02:** Após aprovação e assinatura digital válida, o paciente pode visualizar e baixar a receita em PDF imutável, sem CPF impresso, com nome do paciente, dados do prescritor, itens aprovados, validade e QR Code. (Fonte: RF007, RF008)
+- **RF-03:** A receita permite conferência pública de autenticidade e status pelo QR Code/código identificador, sem expor dados além dos necessários à validação. (Fonte: RF008, RF009)
+- **RF-04:** A sugestão de prescrição é comparada com alergias e comorbidades do perfil; conflito com alergia gera bloqueio visual antes da assinatura. (Fonte: RF003, RF006, RS006)
 
 ### Atendimento e histórico
 
-- **RF-05:** Pacientes ou responsáveis de casos Amarelos/Laranjas podem participar de atendimento síncrono por chat com médico credenciado. (Fonte: RF006)
-- **RF-06:** O sistema mantém uma linha do tempo cronológica com triagens, pareceres, receitas e atendimentos do paciente e de seus dependentes, conforme os registros previstos na fonte. (Fonte: RF008)
-- **RF-07:** O paciente ou responsável pode consultar os registros vinculados ao seu perfil; o acesso profissional deve estar limitado às relações de atendimento autorizadas descritas na fonte. (Fonte: RF008, RS003)
+- **RF-05:** Pacientes ou responsáveis de casos Amarelos/Laranjas ou reclassificados podem participar de chat síncrono com médico credenciado, com mensagens e confirmações de entrega/leitura registradas. (Fonte: RF010)
+- **RF-06:** O sistema mantém linha do tempo cronológica imutável de triagens, pareceres, receitas, chats e emergências do paciente e dependentes. (Fonte: RF014)
+- **RF-07:** O paciente/responsável consulta registros vinculados; profissionais acessam prontuário conforme vínculo autorizado, com auditoria de acessos médicos. (Fonte: RF014, RS003)
+- **RF-08:** Farmacêutico pode registrar dispensação única da receita informando CRF e CNPJ da farmácia; o sistema grava data/hora e bloqueia nova baixa de receita dispensada ou revogada. (Fonte: RF009, RS002)
+- **RF-09:** Médico registra obrigatoriamente desfecho e conduta antes de encerrar consulta e voltar à fila; red flags ou reclassificação Vermelha acionam emergência. (Fonte: RF011)
+- **RF-10:** Médico pode revogar receita ativa com justificativa formal; a revogação desativa imediatamente seu QR Code de dispensação e fica auditada. (Fonte: RF007)
 
 ## Requisitos não funcionais
 
@@ -45,10 +48,11 @@ Dar continuidade aos casos encaminhados para avaliação de um médico, permitir
 - **RS-01:** O sistema não libera uma receita sem revisão médica e assinatura digital ICP-Brasil válida de médico com CRM ativo; deve permitir verificação pública de autenticidade conforme a fonte. (Fonte: RS002)
 - **RS-02:** Prontuários, exames e históricos só podem ser acessados por pessoas autorizadas e vinculadas ao paciente ou ao atendimento, com registro de auditoria. (Fonte: RS003)
 - **RS-03:** Incompatibilidades entre uma sugestão farmacológica e alergias ou comorbidades graves registradas devem gerar o bloqueio visual crítico descrito na fonte antes da assinatura médica. (Fonte: RS006)
+- **RS-04:** Nenhuma receita pode ser emitida sem assinatura ICP-Brasil válida de médico com CRM ativo; dispensação registrada não pode ser repetida e receita revogada não pode ser dispensada. (Fonte: RS002)
 
 ## Fora do escopo desta versão
 
-Não se define neste PRD a lista de medicamentos, a decisão clínica de prescrever ou os detalhes de comunicação com farmácias. O PRD registra somente os comportamentos presentes na fonte, incluindo a revisão humana obrigatória.
+Não se define neste PRD a lista de medicamentos, a decisão clínica de prescrever, os critérios legais de validade da receita ou a integração operacional com farmácias. O PRD registra somente os comportamentos da fonte, incluindo revisão humana e baixa única por farmacêutico.
 
 ## Critérios de conclusão
 
@@ -58,8 +62,8 @@ Não se define neste PRD a lista de medicamentos, a decisão clínica de prescre
 
 ## Dependências, restrições e questões em aberto
 
-- A fonte explica as categorias de prioridade, mas não atribui prioridade aos RFs; este PRD não inventa essa classificação.
-- A fonte cita regras do CFM, Anvisa, guarda mínima de 20 anos e assinatura ICP-Brasil. Confirmar a aplicabilidade atual e o escopo de cada regra com responsáveis competentes antes de fechar as specs; este PRD apenas registra o que consta na fonte.
-- A fonte descreve receita sugerida pela IA e aprovação/edição obrigatória pelo médico. Confirmar se há qualquer cenário de emissão sem sugestão da IA; nenhum foi presumido aqui.
-- A fonte exige envio da receita à farmácia, mas não define integração, destinatário, consentimento ou o que acontece se o envio falhar.
-- Confirmar se o documento-fonte correto é a versão `(3)` utilizada neste PRD; o caminho indicado no pedido, `docs/DocumentoRequisitoMEDIX.AI.md`, não foi encontrado.
+- A fonte cita regras do CFM, Anvisa, guarda mínima de 20 anos e validade de receita calculada conforme regulamentação; confirmar aplicabilidade atual e cálculo de validade com responsáveis competentes antes das specs finais.
+- A fonte exige assinatura ICP-Brasil e validação de certificado/CRM, mas não define integração, revogação de certificado nem fluxo de indisponibilidade do token.
+- A página pública de verificação deve expor apenas dados necessários à autenticidade; a fonte não define o conjunto mínimo de campos públicos nem proteção contra enumeração.
+- A fonte exige CRF e CNPJ no registro de dispensação, mas não define como a identidade e regularidade desses dados serão verificadas.
+- A fonte torna o parecer e desfecho imutáveis, mas não define procedimento para corrigir erro material após encerramento.
