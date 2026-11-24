@@ -1,0 +1,26 @@
+# Ambientes virtuais Python
+.venv/
+env/
+venv/
+
+# Cache e artefatos Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Banco de desenvolvimento e arquivos locais do Django
+db.sqlite3
+/media/
+/staticfiles/
+
+# Segredos e configuração local
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Configuração local de editores
+.vscode/
+.idea/

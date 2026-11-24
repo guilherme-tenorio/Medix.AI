@@ -1,6 +1,6 @@
 # Estado atual
 
-Atualizado em: 2026-11-23
+Atualizado em: 2026-11-24
 
 ## Em andamento
 
@@ -13,16 +13,19 @@ Atualizado em: 2026-11-23
 ## Implementação
 
 - O código Django continua em estágio de esqueleto: não implementa os fluxos de cadastro, autenticação, painel médico, chat, triagem ou prontuário. O cliente móvel de pacientes também não existe neste repositório.
-- O ambiente virtual `env` aponta para uma instalação Python 3.13 ausente/inacessível (`C:\Users\gteno\AppData\Local\Programs\Python\Python313\python.exe`); `py` não encontra interpreters instalados. Não foi possível executar ou validar migrações/aplicação neste ambiente.
+- Ambiente virtual `env` confirmado pelo usuário com Python 3.13.5, Django 6.1.3 e Psycopg instalado. `python manage.py check` concluiu sem problemas e `python manage.py runserver` iniciou em `http://127.0.0.1:8000/`.
+- O usuário iniciou `createsuperuser`; conclusão da criação do superusuário e saída de `migrate` ainda não foram confirmadas explicitamente.
 - Não foram implementados provedores de SMS, e-mail transacional, LLM, voz, mapas/hospitais, assinatura ICP-Brasil, verificação CRM/CRF, chat em tempo real ou push/WhatsApp.
+- Foi criado `.gitignore` na raiz para ambientes virtuais, caches Python, banco SQLite local, arquivos `.env`, mídia, logs e configurações locais de editor. `db.sqlite3` e `core/__pycache__/*.pyc` foram removidos do índice do Git; os arquivos locais de cache foram preservados.
+- O histórico Git contém ao menos uma versão anterior de `db.sqlite3`; `.gitignore` e a remoção atual não apagam cópias de commits anteriores. Verificar se o histórico foi publicado antes de decidir sobre limpeza de histórico/rotação de credenciais.
 
 ## Próximos passos
 
-1. Provisionar um runtime Python compatível com o projeto e verificar dependências/Django.
-2. Definir e aceitar contratos para autenticação/token, consentimento, verificação SMS, convites, retenção e serviços externos.
-3. Validar protocolo/red flags e regras de prescrição com responsáveis clínicos; validar requisitos jurídicos/regulatórios com responsáveis competentes.
-4. Implementar o cliente móvel do paciente e as interfaces web médico/administrador a partir das specs aceitas.
-5. Implementar serviços e persistência conforme as specs, gerando/revisando migrações e testes.
+1. Confirmar que `python manage.py migrate` terminou sem erros e concluir a criação do superusuário.
+2. Definir a tecnologia do aplicativo móvel de pacientes e fechar contratos de autenticação, consentimento, verificação SMS, convites e retenção.
+3. Implementar a primeira fatia vertical de contas/autenticação: autocadastro de paciente, perfil/papel e provisionamento de médicos por administrador; especificar painel web médico.
+4. Validar protocolo/red flags e regras de prescrição com responsáveis clínicos; validar requisitos jurídicos/regulatórios com responsáveis competentes antes dos fluxos clínicos.
+5. Implementar funcionalidades progressivamente a partir das specs aceitas, gerando/revisando migrações e testes.
 
 ## Pendências de produto e operação
 
