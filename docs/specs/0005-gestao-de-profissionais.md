@@ -1,9 +1,10 @@
 # Spec 0005: Cadastro e homologação de médicos
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-07 e RF-08 do [PRD 0001](../prd/0001-contas-perfis-e-pacientes.md)
 - **Depende de:** [Spec 0003](0003-autenticacao-e-sessao.md)
-- **Fonte:** RF017, RF019, RF021, RNF007, RNF009 e RS007 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte:** RF017, RF019, RF021, RNF007, RNF009 e RS007 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Separação dos perfis
 
@@ -52,7 +53,7 @@
 
 - A fonte não define provedor de consulta CRM, periodicidade, mecanismo de validação documental, política de certificado, envio/expiração do convite ou bootstrap do primeiro administrador.
 - A verificação de idade compatível com formação médica não tem regra definida.
-- A interface do aplicativo móvel de pacientes não faz parte deste painel Django.
+- O painel clínico e a interface de pacientes pertencem ao mesmo WebApp. Não existe aplicativo móvel nativo no escopo deste projeto.
 
 ## Testes
 

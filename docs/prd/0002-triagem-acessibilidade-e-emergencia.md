@@ -1,9 +1,10 @@
 # PRD 0002: Triagem acessível e encaminhamento de emergência
 
-- **Status:** Proposto
-- **Data:** 2026-11-23
+- **Status:** Aceito
+- **Aprovado em:** 2026-11-25
+- **Data:** 2026-11-24
 - **Especificações:** [Spec 0001](../specs/0001-interacao-por-voz-e-acessibilidade.md), [Spec 0006](../specs/0006-triagem-e-classificacao-de-risco.md), [Spec 0007](../specs/0007-encaminhamento-de-emergencia.md), [Spec 0002](../specs/0002-cadastro-de-pacientes.md) e [Spec 0004](../specs/0004-gestao-de-dependentes.md)
-- **Fonte:** `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte:** [`DocumentoRequisitoMEDIX.AI (4).md`](../DocumentoRequisitoMEDIX.AI%20(4).md)
 
 ## Objetivo
 
@@ -23,7 +24,7 @@ Permitir que um paciente ou seu responsável relate sintomas, responda a uma ana
 
 - **RF-01:** O paciente ou responsável autorizado pode concluir uma anamnese conversacional por texto ou áudio, informando sintomas, início/duração e intensidade de 0 a 10; a IA pode fazer perguntas adaptativas usando o perfil clínico do paciente. (Fonte: RF004)
 - **RF-02:** Ao concluir a anamnese, o sistema classifica o risco segundo regras determinísticas do Protocolo de Manchester e apresenta relatório com queixas, antecedentes, alergias e respostas. (Fonte: RF005)
-- **RF-03:** O resultado direciona casos Brancos/Verdes para revisão clínica, Amarelos/Laranjas para atendimento síncrono e Vermelhos para emergência sem fila virtual. O paciente não pode alterar as regras ou classificação. (Fonte: RF005)
+- **RF-03:** O resultado direciona casos Brancos/Verdes sem necessidade medicamentosa para orientação da IA; Brancos/Verdes com sugestão medicamentosa para validação médica; Amarelos/Laranjas diretamente para chat síncrono; e Vermelhos para emergência sem fila virtual. O paciente não pode alterar as regras ou classificação. (Fonte: RF005)
 - **RF-07:** Durante o alerta Vermelho, o sistema localiza hospitais e prontos-socorros próximos, ordenados por distância, permite abrir rota externa e, sem GPS, mantém o alerta visível e permite busca manual por bairro/cidade. (Fonte: RF013)
 - **RF-08:** Anamnese concluída e classificação são registradas de forma imutável no prontuário; nova avaliação gera registro separado. (Fonte: RF004, RF005, RF014)
 
@@ -31,7 +32,7 @@ Permitir que um paciente ou seu responsável relate sintomas, responda a uma ana
 
 - **RF-04:** Quando a classificação for Vermelha, o sistema interrompe o fluxo comum, exibe alerta em tela cheia com sintomas graves, cria ficha clínica resumida para apresentação no hospital e não envia o caso para fila virtual. (Fonte: RF012)
 - **RF-05:** O usuário pode interagir por voz para preencher cadastros e perfil clínico, conduzir triagem, usar o chat e ouvir orientações de emergência, mantendo alternativa textual. (Fonte: RF015)
-- **RF-06:** O aplicativo oferece comandos de voz e leitura sintetizada em português pausado, dicas visuais, alto contraste, fontes legíveis e mensagens de erro acessíveis. (Fonte: RF015, RNF001, RNF002)
+- **RF-06:** A interface web oferece comandos de voz e leitura sintetizada em português pausado, dicas visuais, alto contraste, fontes legíveis e mensagens de erro acessíveis, usando recursos do navegador/dispositivo quando disponíveis e mantendo alternativa textual. (Fonte: RF015, RNF001, RNF002)
 
 ## Requisitos não funcionais
 
@@ -41,6 +42,8 @@ Permitir que um paciente ou seu responsável relate sintomas, responda a uma ana
 - **RNF-04 (disponibilidade):** Triagem e encaminhamento de emergência devem ter disponibilidade mínima de 99,5% em regime 24/7. (Fonte: RNF005)
 - **RNF-05 (privacidade):** Os dados pessoais e clínicos devem ser protegidos conforme os controles de transmissão e armazenamento especificados pela fonte. O áudio gravado para transcrição deve ser descartado após a conversão em texto. (Fonte: RNF006)
 - **RNF-06 (interoperabilidade):** A anamnese e a classificação comunicam-se com um provedor externo de LLM via API REST sobre HTTPS/JSON, com resposta estruturada; timeout ou indisponibilidade gera mensagem orientativa sem apresentar classificação inventada. (Fonte: RNF010)
+- **RNF-07 (padrões clínicos, técnicos e normativos):** O produto observa os padrões aplicáveis indicados para Manchester, DCB, ICP-Brasil, LGPD, CFM e Anvisa. (Fonte: RNF012)
+- **RNF-08 (limites éticos da IA):** A IA atua como apoio, sem substituir julgamento clínico ou emitir prescrição autônoma; red flags determinísticas têm prioridade e respostas estruturadas devem mitigar imprecisões e vieses. (Fonte: RNF013)
 
 ## Requisitos de segurança
 

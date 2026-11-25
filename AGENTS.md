@@ -21,4 +21,4 @@
 
 - Requisitos do produto: `docs/prd/`. Antes de criar ou alterar, leia `.agents/skills/prd-writer/SKILL.md`.
 - Especificações: `docs/specs/`. Antes de criar ou alterar, leia `.agents/skills/spec/SKILL.md`.
-- Decisões de arquitetura: `docs/adr/`. Antes de criar ou alterar, leia `.agents/skills/adr-wruter/SKILL.md`.
+- Decisões de arquitetura: `docs/adr/`. Antes de criar ou alterar, leia `.agents/skills/adr-writer/SKILL.md`.

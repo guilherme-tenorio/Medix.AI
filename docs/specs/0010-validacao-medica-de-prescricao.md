@@ -1,13 +1,14 @@
-﻿# Spec 0010: Revisão e validação médica de prescrição
+# Spec 0010: Revisão e validação médica de prescrição
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-01 e RF-04 do [PRD 0003](../prd/0003-atendimento-prescricao-e-prontuario.md)
 - **Depende de:** [Spec 0006](0006-triagem-e-classificacao-de-risco.md), [Spec 0008](0008-fila-clinica.md)
-- **Fonte complementar:** RF006, RS002, RS006 e RNF008 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF006, RS002, RS006 e RNF008 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Pré-condições
 
-- Triagem concluída com resultado Branco ou Verde.
+- Triagem concluída com resultado Branco ou Verde e sugestão medicamentosa, ou atendimento síncrono ativo quando parecer clínico for necessário durante o chat.
 - Médico autenticado, credenciado e com CRM ativo; certificado digital ativo segundo a fonte.
 
 ## Fluxo principal
@@ -16,7 +17,7 @@
 2. Sistema cruza sugestão com alergias/comorbidades registradas e mostra alerta crítico em caso de incompatibilidade.
 3. Médico escolhe: aprovar integralmente, aprovar com alterações, ou rejeitar/reclassificar para atendimento síncrono.
 4. Para aprovação, médico informa fármaco, posologia/via e instruções, assina digitalmente com certificado ICP-Brasil válido e registra parecer.
-5. Aprovação gera entrada para emissão digital (Spec 0011); rejeição/reclassificação encaminha para chat quando indicado.
+5. Aprovação gera entrada para emissão digital (Spec 0011); rejeição/reclassificação exige justificativa clínica e encaminha imediatamente para chat. Se houver classificação Vermelha, prevalece o fluxo de emergência da Spec 0007.
 
 ## Regras e validações
 
@@ -43,7 +44,7 @@
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
 
 
 ## Requisitos atualizados da fonte

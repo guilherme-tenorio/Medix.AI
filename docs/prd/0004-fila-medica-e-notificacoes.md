@@ -1,9 +1,10 @@
 # PRD 0004: Fila médica, disponibilidade e notificações
 
-- **Status:** Proposto
-- **Data:** 2026-11-23
+- **Status:** Aceito
+- **Aprovado em:** 2026-11-25
+- **Data:** 2026-11-24
 - **Especificações:** [Spec 0008](../specs/0008-fila-clinica.md), [Spec 0013](../specs/0013-notificacoes-e-alertas.md) e [Spec 0015](../specs/0015-gestao-de-administradores-e-monitoramento.md)
-- **Fonte:** `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte:** [`DocumentoRequisitoMEDIX.AI (4).md`](../DocumentoRequisitoMEDIX.AI%20(4).md)
 
 ## Objetivo
 
@@ -27,7 +28,7 @@ Organizar o atendimento médico por prioridade e disponibilidade, comunicar even
 
 ### Notificações e administração
 
-- **RF-04:** O sistema envia notificações por Push, SMS, e-mail e WhatsApp para eventos relevantes, com links profundos para o fluxo associado; mensagens em tela bloqueada mascaram dados clínicos. O usuário personaliza canais preferenciais e pode remover notificações lidas da central. (Fonte: RF020)
+- **RF-04:** O WebApp envia notificações por Push web (quando suportado pelo navegador), SMS, e-mail e WhatsApp para eventos relevantes, com links que abrem o fluxo web associado; mensagens em tela bloqueada mascaram dados clínicos. O usuário personaliza canais preferenciais e pode remover notificações lidas da central. (Fonte: RF020; plataforma: PRD 0005)
 - **RF-05:** Se uma notificação Push de chamada não tiver confirmação em 30 segundos, o sistema envia SMS de fallback. (Fonte: RF020)
 - **RF-06:** Administradores consultam histórico de notificações enviadas e estados de entrega conforme permissões. A pesquisa de auditoria permite filtrar por período, CPF/CRM do operador, tipo de evento e severidade; registros incluem autor, data/hora, IP e ação e não podem ser alterados ou apagados. O histórico de notificações permanece pesquisável no painel administrativo. (Fonte: RF020, RF022)
 - **RF-07:** O administrador acompanha painel operacional atualizado com volume da fila, tempo de espera, emergências e gargalos; consulta trilha imutável por operador, período e evento. (Fonte: RF022)
@@ -39,13 +40,15 @@ Organizar o atendimento médico por prioridade e disponibilidade, comunicar even
 - **RNF-02 (urgência):** Alertas urgentes devem ser disparados em até 2 segundos. (Fonte: RNF003)
 - **RNF-03 (disponibilidade e fallback):** Triagem e encaminhamento de emergência devem manter disponibilidade de 99,5% em regime 24/7; Push sem confirmação em 30 segundos aciona SMS. (Fonte: RNF005, RF020)
 - **RNF-04 (auditoria):** Eventos críticos e acessos relacionados mantêm trilha de auditoria imutável. (Fonte: RNF007)
-- **RNF-05 (compatibilidade):** Painéis clínico e administrativo funcionam nos navegadores e telas responsivas descritos na fonte. (Fonte: RNF009)
+- **RNF-05 (compatibilidade):** Painéis clínico e administrativo funcionam nos navegadores web descritos na fonte. (Fonte: RNF009)
+- **RNF-06 (implantação e observabilidade):** Ambientes de desenvolvimento, homologação e produção devem ser segregados, com backup diário criptografado, monitoramento contínuo de disponibilidade e alertas operacionais de falha. (Fonte: RNF014)
 
 ## Requisitos de segurança
 
 - **RS-01:** Notificações Push e SMS não expõem diagnóstico ou dados clínicos sensíveis na tela bloqueada. (Fonte: RS005)
 - **RS-02:** A fila mostra apenas os dados parcialmente anonimizados previstos pela fonte (nome abreviado, idade e sexo) até o aceite; acesso clínico completo respeita vínculo e autorização. (Fonte: RF018, RS003)
 - **RS-03:** Mudanças de disponibilidade, administração e consulta à trilha de auditoria devem ser rastreáveis com autor e data/hora. (Fonte: RF019, RF022, RNF007)
+- **RS-04:** O sistema veda exclusão física de cadastros médicos e registros de prontuário/auditoria, revoga sessões no desligamento profissional, impede inativar o último administrador ativo e protege a imutabilidade dos logs. (Fonte: RS011)
 
 ## Fora do escopo desta versão
 

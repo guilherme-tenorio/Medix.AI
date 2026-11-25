@@ -1,9 +1,10 @@
-﻿# Spec 0008: Fila clínica e disponibilidade médica
+# Spec 0008: Fila clínica e disponibilidade médica
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-01, RF-02 e RF-03 do [PRD 0004](../prd/0004-fila-medica-e-notificacoes.md)
 - **Depende de:** [Spec 0005](0005-gestao-de-profissionais.md), [Spec 0006](0006-triagem-e-classificacao-de-risco.md)
-- **Fonte complementar:** RF018, RF019, RNF004, RNF007 e RNF009 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF018, RF019, RNF004, RNF007 e RNF009 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Pré-condições e fluxo
 
@@ -22,7 +23,7 @@
 - Fila e sincronização de status devem atualizar em até 1 segundo.
 - Cor Vermelha segue encaminhamento de emergência e não deve permanecer em fila virtual (Spec 0007).
 - Somente médico homologado com CRM regular e certificado ICP-Brasil ativo pode ficar Online.
-- O painel médico é web; o cadastro e a experiência do paciente pertencem ao aplicativo móvel, sem autocadastro profissional.
+- O painel médico e a experiência do paciente/responsável são interfaces do mesmo WebApp. O acesso médico usa `/medico/login`; pacientes/responsáveis usam `/login`. Não há cliente móvel nativo no escopo do projeto.
 - Se o médico ficar inativo ou perder autorização, não pode aceitar novos chamados; tratamento de chamado já aceito aguarda definição.
 
 ## Pendências
@@ -44,7 +45,7 @@
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
 
 
 ## Requisitos atualizados da fonte

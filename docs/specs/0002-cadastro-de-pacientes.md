@@ -1,9 +1,10 @@
-﻿# Spec 0002: Cadastro de pacientes titulares
+# Spec 0002: Cadastro de pacientes titulares
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-01 e RF-02 do [PRD 0001](../prd/0001-contas-perfis-e-pacientes.md)
 - **Dependências:** [Spec 0001](0001-interacao-por-voz-e-acessibilidade.md) para entrada acessível
-- **Fonte complementar:** RF001 e RF003, RNF006, RNF007 e RS001 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF001 e RF003, RNF006, RNF007 e RS001 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Pré-condições
 
@@ -12,7 +13,7 @@
 
 ## Fluxo principal
 
-1. Pessoa ainda sem conta abre o aplicativo de pacientes e inicia o cadastro no primeiro acesso. Esse é um fluxo de autocadastro de paciente, separado do fluxo de provisionamento médico, que não é público (Spec 0005).
+1. Pessoa ainda sem conta abre o site e inicia o cadastro público de paciente. No MVP acadêmico, o fluxo é web e não oferece escolha de papel; é separado do provisionamento médico, que não é público (Spec 0005).
 2. O titular informa identificação/contato, acessibilidade e consentimento explícito; a idade deve ser pelo menos 18 anos. Informa credenciais e dados clínicos basais.
 3. O sistema valida os campos, unicidade de CPF/e-mail, consentimento e confirmação do celular por SMS.
 4. Se as validações forem concluídas, cria conta com perfil Paciente e permite autenticação pelo mecanismo comum de RF016.
@@ -59,8 +60,8 @@ Campos de formulário derivam da tabela acima. Rota, métodos HTTP, nome de view
 ## Separação de cadastro e interface
 
 - O autocadastro desta spec é exclusivo de pacientes titulares. Dependentes são cadastrados por responsável autenticado na Spec 0004 e não recebem login.
-- Médicos são criados/homologados somente por administrador na Spec 0005; médico não se registra por esse formulário nem pelo aplicativo de pacientes.
-- A aplicação móvel de pacientes deve seguir RNF009. Este fluxo documenta o comportamento do produto; o repositório atual contém somente Django e não inclui o cliente móvel.
+- Médicos são criados/homologados somente por administrador na Spec 0005; médico não se registra por esse formulário.
+- No MVP acadêmico, este fluxo é oferecido pela interface web. O aplicativo nativo Android/iOS citado no RNF009 permanece fora do escopo desta versão (PRD 0005); a versão web não é considerada cumprimento desse requisito móvel.
 
 ## Testes
 
@@ -73,7 +74,7 @@ Campos de formulário derivam da tabela acima. Rota, métodos HTTP, nome de view
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
 
 
 ## Requisitos atualizados da fonte

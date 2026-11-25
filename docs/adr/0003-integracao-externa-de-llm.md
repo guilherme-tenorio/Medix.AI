@@ -1,6 +1,7 @@
 # ADR 0003: Integração externa de LLM para anamnese
 
-- **Status:** Proposto
+- **Status:** Aceito
+- **Aprovado em:** 2026-11-25
 - **Data:** 2026-11-23
 
 ## Contexto

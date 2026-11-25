@@ -1,9 +1,10 @@
 # Spec 0014: Verificação e dispensação de receita
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-03, RF-08 e RS-04 do [PRD 0003](../prd/0003-atendimento-prescricao-e-prontuario.md)
 - **Depende de:** [Spec 0011](0011-emissao-e-consulta-de-receita.md)
-- **Fonte:** RF009, RS002 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte:** RF009, RS002 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Fluxo
 

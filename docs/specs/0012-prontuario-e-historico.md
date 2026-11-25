@@ -1,9 +1,10 @@
-﻿# Spec 0012: Prontuário e histórico de atendimentos
+# Spec 0012: Prontuário e histórico de atendimentos
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-06 e RF-07 do [PRD 0003](../prd/0003-atendimento-prescricao-e-prontuario.md)
 - **Depende de:** [Spec 0004](0004-gestao-de-dependentes.md), [Spec 0006](0006-triagem-e-classificacao-de-risco.md), [Spec 0009](0009-chat-medico.md) e [Spec 0011](0011-emissao-e-consulta-de-receita.md)
-- **Fonte complementar:** RF014, RNF006–RNF008, RS001 e RS003 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF014, RNF006–RNF008, RS001 e RS003 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Pré-condições
 
@@ -20,7 +21,7 @@
 
 - Período precisa conter datas válidas e início não posterior ao fim.
 - Consulta de terceiro sem vínculo é negada e auditada.
-- Triagem concluída é imutável e não pode ser apagada pelo usuário. A fonte não define correção ou exclusão dos demais tipos de registro clínico; esclarecer antes de implementar essas operações.
+- Registros de prontuário e auditoria não podem ser excluídos fisicamente nem alterados; correções clínicas devem gerar novo registro de retificação, preservando o original e a trilha. (Fonte: RS011; detalhes do fluxo de retificação pendentes.)
 - Preservar registros por prazo mínimo de 20 anos indicado na fonte, sujeito à validação regulatória.
 - Dados de prontuário são confidenciais e protegidos em trânsito e armazenamento.
 
@@ -42,7 +43,7 @@
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
 
 
 ## Requisitos atualizados da fonte

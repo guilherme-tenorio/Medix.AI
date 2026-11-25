@@ -1,9 +1,10 @@
-﻿# Spec 0004: Cadastro e gestão de dependentes
+# Spec 0004: Cadastro e gestão de dependentes
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-03, RF-04 e RF-05 do [PRD 0001](../prd/0001-contas-perfis-e-pacientes.md)
 - **Depende de:** [Spec 0002](0002-cadastro-de-pacientes.md), [Spec 0003](0003-autenticacao-e-sessao.md)
-- **Fonte complementar:** RF002, RF003, RNF007 e RS001 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF002, RF003, RNF007 e RS001 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Pré-condições
 
@@ -48,7 +49,7 @@ O serviço deve validar vínculo e idade do responsável antes de ler ou alterar
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
 
 
 ## Requisitos atualizados da fonte

@@ -1,9 +1,10 @@
-﻿# Spec 0007: Encaminhamento de emergência
+# Spec 0007: Encaminhamento de emergência
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-04 do [PRD 0002](../prd/0002-triagem-acessibilidade-e-emergencia.md)
 - **Depende de:** [Spec 0006](0006-triagem-e-classificacao-de-risco.md)
-- **Fonte complementar:** RF012, RF013, RNF003, RNF005 e RS004 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF012, RF013, RNF003, RNF005 e RS004 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Gatilhos
 
@@ -44,7 +45,7 @@
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
 
 
 ## Requisitos atualizados da fonte

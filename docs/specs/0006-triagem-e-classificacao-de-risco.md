@@ -1,9 +1,10 @@
-﻿# Spec 0006: Anamnese e classificação de risco
+# Spec 0006: Anamnese e classificação de risco
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-01, RF-02 e RF-03 do [PRD 0002](../prd/0002-triagem-acessibilidade-e-emergencia.md)
 - **Depende de:** [Spec 0002](0002-cadastro-de-pacientes.md), [Spec 0003](0003-autenticacao-e-sessao.md), [Spec 0004](0004-gestao-de-dependentes.md)
-- **Fonte complementar:** RF003–RF005, RNF003, RNF006, RNF010, RS001, RS004 e RS010 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF003–RF005, RNF003, RNF006, RNF010, RS001, RS004 e RS010 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Pré-condições e entradas
 
@@ -16,7 +17,7 @@
 1. Usuário seleciona titular ou dependente; sistema confirma nome, idade e vínculo antes de iniciar.
 2. Usuário relata sintomas e responde às perguntas dinâmicas. Dados de saúde do perfil são apresentados ao fluxo de triagem.
 3. IA conduz a entrevista e estrutura as respostas; regras determinísticas aprovadas conforme Protocolo de Manchester calculam a classificação de risco. A IA não escolhe nem pode alterar a cor.
-4. Sistema apresenta resultado e encaminha: Branca/Verde para orientação e avaliação de receita por médico; Amarela/Laranja para fila/atendimento médico; Vermelha para emergência conforme Spec 0007.
+4. Sistema apresenta resultado e encaminha: Branca/Verde sem necessidade medicamentosa para orientação da IA; Branca/Verde com sugestão medicamentosa para fila de revisão médica; Amarela/Laranja diretamente para chat síncrono; Vermelha para emergência conforme Spec 0007.
 5. Sistema registra a triagem no histórico do paciente. Triagem concluída não pode ser alterada ou apagada; uma nova triagem é um registro sequencial.
 
 ## Alternativas e erros
@@ -31,6 +32,7 @@
 - Resultado contém classificação entre Branca, Verde, Amarela, Laranja ou Vermelha, respostas, relato e data/hora conforme fonte.
 - Cada etapa de anamnese responde em até 5 segundos em condições normais de rede.
 - Dados clínicos são protegidos durante transmissão e armazenamento; acessos são auditáveis.
+- A IA atua somente como apoio à decisão/encaminhamento, sem substituir julgamento clínico ou emitir prescrição autônoma. Red flags determinísticas têm prioridade sobre qualquer fila.
 
 ## Decisões e pendências
 
@@ -59,4 +61,4 @@
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.

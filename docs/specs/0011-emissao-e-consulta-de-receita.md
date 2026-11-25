@@ -1,9 +1,10 @@
-﻿# Spec 0011: Emissão e consulta de receita digital
+# Spec 0011: Emissão e consulta de receita digital
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-02 e RF-03 do [PRD 0003](../prd/0003-atendimento-prescricao-e-prontuario.md)
 - **Depende de:** [Spec 0010](0010-validacao-medica-de-prescricao.md)
-- **Fonte complementar:** RF007, RF008, RNF006, RNF008, RS002 e RS006 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF007, RF008, RNF006, RNF008, RS002 e RS006 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Pré-condição
 
@@ -41,7 +42,7 @@
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
 
 
 ## Requisitos atualizados da fonte

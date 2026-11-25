@@ -1,9 +1,10 @@
 # PRD 0003: Atendimento médico, prescrição e prontuário
 
-- **Status:** Proposto
-- **Data:** 2026-11-23
+- **Status:** Aceito
+- **Aprovado em:** 2026-11-25
+- **Data:** 2026-11-24
 - **Especificações:** [Spec 0009](../specs/0009-chat-medico.md), [Spec 0010](../specs/0010-validacao-medica-de-prescricao.md), [Spec 0011](../specs/0011-emissao-e-consulta-de-receita.md), [Spec 0012](../specs/0012-prontuario-e-historico.md) e [Spec 0014](../specs/0014-verificacao-e-dispensacao-de-receita.md)
-- **Fonte:** `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte:** [`DocumentoRequisitoMEDIX.AI (4).md`](../DocumentoRequisitoMEDIX.AI%20(4).md)
 
 ## Objetivo
 
@@ -34,6 +35,7 @@ Dar continuidade aos casos encaminhados para avaliação de um médico, permitir
 - **RF-08:** Farmacêutico pode registrar dispensação única da receita informando CRF e CNPJ da farmácia; o sistema grava data/hora e bloqueia nova baixa de receita dispensada ou revogada. (Fonte: RF009, RS002)
 - **RF-09:** Médico registra obrigatoriamente desfecho e conduta antes de encerrar consulta e voltar à fila; red flags ou reclassificação Vermelha acionam emergência. (Fonte: RF011)
 - **RF-10:** Médico pode revogar receita ativa com justificativa formal; a revogação desativa imediatamente seu QR Code de dispensação e fica auditada. (Fonte: RF007)
+- **RF-11:** O médico pode revisar e registrar parecer também durante atendimento síncrono; rejeição/reclassificação para chat exige justificativa clínica, e casos reclassificados seguem imediatamente para o chat. (Fonte: RF006 atualizado)
 
 ## Requisitos não funcionais
 
@@ -41,7 +43,9 @@ Dar continuidade aos casos encaminhados para avaliação de um médico, permitir
 - **RNF-02 (privacidade):** Dados pessoais e clínicos devem ser protegidos durante transmissão e armazenamento, conforme TLS 1.3 e AES-256 indicados pela fonte. (Fonte: RNF006)
 - **RNF-03 (acesso e auditoria):** O acesso a prontuários deve respeitar os papéis definidos e manter trilha de auditoria imutável dos acessos e emissões de receitas, com autor e data/hora. (Fonte: RNF007)
 - **RNF-04 (conformidade e retenção):** Prontuários devem obedecer às normas e ao prazo mínimo de guarda de 20 anos citados na fonte; receitas devem observar as regras de validade jurídica e assinatura digital ali especificadas. (Fonte: RNF008)
-- **RNF-05 (compatibilidade):** O painel clínico deve operar nos navegadores e telas responsivas descritos na fonte. (Fonte: RNF009)
+- **RNF-05 (compatibilidade):** O painel clínico deve operar nos navegadores web descritos. O requisito móvel nativo de pacientes pertence ao produto completo e não é atendido pelo MVP WebApp. (Fonte: RNF009)
+- **RNF-06 (armazenamento e retenção):** Anexos clínicos de até 10 MB e receitas assinadas devem ser armazenados de forma escalável, com compressão sem perda diagnóstica e arquivamento em camadas, sustentando a retenção mínima indicada de 20 anos. (Fonte: RNF011; aplicabilidade legal pendente)
+- **RNF-07 (padrões):** Atendimentos, prescrições e prontuários devem observar padrões clínicos, técnicos e normativos aplicáveis, incluindo DCB, ICP-Brasil, LGPD, CFM e Anvisa. (Fonte: RNF012)
 
 ## Requisitos de segurança
 

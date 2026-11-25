@@ -1,9 +1,10 @@
-﻿# Spec 0009: Atendimento síncrono por chat
+# Spec 0009: Atendimento síncrono por chat
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-05 do [PRD 0003](../prd/0003-atendimento-prescricao-e-prontuario.md)
 - **Depende de:** [Spec 0007](0007-encaminhamento-de-emergencia.md), [Spec 0008](0008-fila-clinica.md)
-- **Fonte complementar:** RF010, RF011, RNF004, RNF006, RNF007 e RS003 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF010, RF011, RNF004, RNF006, RNF007 e RS003 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Pré-condições
 
@@ -43,7 +44,7 @@
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
 
 
 ## Requisitos atualizados da fonte

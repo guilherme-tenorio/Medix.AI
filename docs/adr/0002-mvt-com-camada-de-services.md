@@ -1,6 +1,7 @@
 # ADR 0002: MVT com camada de services
 
-- **Status:** Proposto
+- **Status:** Aceito
+- **Aprovado em:** 2026-11-25
 - **Data:** 2026-11-22
 
 ## Contexto
@@ -21,4 +22,4 @@ O MEDIX.AI precisa de uma organização comum para implementar os fluxos descrit
 - Views mantêm responsabilidade focada em entrada HTTP e resposta, e Models mantêm representação do estado persistido.
 - Cada funcionalidade exige contratos explícitos entre View, Form, Service, Model e Template nas specs correspondentes.
 - A camada adicional de services introduz mais módulos e chamadas; mudanças no domínio podem exigir atualização coordenada dos services e das Views consumidoras.
-- A organização de services por domínio, tratamento de transações e divisão de responsabilidades entre apps continua pendente de documentação nas specs/ADRs aplicáveis.
+- A divisão dos apps por domínio está definida no [ADR 0004](0004-apps-django-por-dominio.md); contratos de services, tratamento de transações e dependências concretas continuam a ser detalhados nas specs aplicáveis.

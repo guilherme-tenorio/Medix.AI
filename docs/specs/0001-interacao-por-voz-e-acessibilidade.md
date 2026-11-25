@@ -1,8 +1,9 @@
-﻿# Spec 0001: Interação por voz e acessibilidade
+# Spec 0001: Interação por voz e acessibilidade
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-09 do [PRD 0001](../prd/0001-contas-perfis-e-pacientes.md), RF-05 e RF-06 do [PRD 0002](../prd/0002-triagem-acessibilidade-e-emergencia.md)
-- **Fonte complementar:** RF015, RNF001, RNF002, RNF006 e RS009 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte complementar:** RF015, RNF001, RNF002, RNF006 e RS009 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Fluxo
 
@@ -38,7 +39,7 @@
 
 ## Fonte vigente
 
-A fonte atual de requisitos é docs/Cópia de DocumentoRequisitoMEDIX.AI.md (2026-11-23). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
+A fonte atual de requisitos é docs/DocumentoRequisitoMEDIX.AI (4).md (2026-11-24). Quando o texto desta spec divergir de requisito RF/RNF/RS atualizado nessa fonte, prevalece a fonte e deve-se ajustar a especificação antes de implementar.
 
 
 ## Requisitos atualizados da fonte

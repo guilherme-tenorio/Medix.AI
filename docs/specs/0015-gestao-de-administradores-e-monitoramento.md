@@ -1,9 +1,10 @@
 # Spec 0015: Gestão de administradores e monitoramento
 
 - **Status:** Proposto
+- **Aprovação:** Aceita pelo responsável em 2026-11-25
 - **Requisitos:** RF-07 e RF-08 do [PRD 0004](../prd/0004-fila-medica-e-notificacoes.md), RF-11 do [PRD 0001](../prd/0001-contas-perfis-e-pacientes.md)
 - **Depende de:** [Spec 0003](0003-autenticacao-e-sessao.md), [Spec 0008](0008-fila-clinica.md), [Spec 0012](0012-prontuario-e-historico.md)
-- **Fonte:** RF022 de `docs/Cópia de DocumentoRequisitoMEDIX.AI.md`
+- **Fonte:** RF022 de `docs/DocumentoRequisitoMEDIX.AI (4).md`
 
 ## Fluxos
 
@@ -14,6 +15,8 @@
 - Somente administrador ativo pode criar, consultar, alterar ou desativar contas administrativas, com cada ação registrada em trilha imutável com autor, data/hora, IP e ação.
 - Antes de desativar conta, verificar que existe outro administrador ativo; bloquear a operação quando o alvo é o último administrador.
 - Primeiro acesso com senha temporária exige troca conforme Spec 0003.
+- A auto-inativação é bloqueada quando o administrador é o último administrador ativo. Cadastros médicos desligados são inativados logicamente e as sessões ativas são revogadas sem apagar histórico. (Fonte: RS011)
+- Registros de auditoria são imutáveis e não podem ser excluídos fisicamente. A garantia operacional de não-repúdio deve ser definida antes da implementação.
 
 ### Painel operacional
 
