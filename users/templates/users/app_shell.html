@@ -1,0 +1,175 @@
+{% extends 'users/base.html' %}
+{% load static %}
+
+{% block body %}
+<link rel="stylesheet" href="{% static 'users/css/medix_figma.css' %}">
+<div class="app-shell">
+    <button type="button" class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Fechar menu"></button>
+
+    <aside class="sidebar" id="app-sidebar" aria-label="Menu lateral">
+        <div class="sidebar-top">
+            <a class="brand" href="{% if request.user.role == 'professional' %}{% url 'users:professional_portal' %}{% elif request.user.role == 'administrator' %}/admin/{% else %}{% url 'users:patient_portal' %}{% endif %}" aria-label="MEDIX.AI">
+                <span class="brand-mark">
+                    <svg class="icon" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9"></circle>
+                        <path d="M12 8v8M8 12h8"></path>
+                    </svg>
+                </span>
+                <span class="brand-name">MEDIX<span>.AI</span></span>
+            </a>
+
+            {% if request.user.role == 'patient' %}
+                <a class="new-chat" href="{% url 'triage:start' %}">
+                    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+                    Nova triagem
+                </a>
+                <nav class="sidebar-nav" aria-label="Navegação principal">
+                    <a class="nav-item {% block nav_home %}{% endblock %}" href="{% url 'users:patient_portal' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10M9 20v-6h6v6"></path></svg>
+                        Início
+                    </a>
+                    <a class="nav-item {% block nav_triage %}{% endblock %}" href="{% url 'triage:list' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 14a4 4 0 0 1-4 4H9l-6 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path></svg>
+                        Triagem IA
+                    </a>
+                    <a class="nav-item {% block nav_prescriptions %}{% endblock %}" href="{% url 'prescriptions:list' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                        Receitas digitais
+                    </a>
+                    <a class="nav-item {% block nav_records %}{% endblock %}" href="{% url 'records:timeline' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5M12 7v5l3 2"></path></svg>
+                        Histórico / Prontuário
+                    </a>
+                    <a class="nav-item {% block nav_profile %}{% endblock %}" href="{% url 'patients:profile' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+                        Perfil clínico
+                    </a>
+                    <a class="nav-item {% block nav_dependents %}{% endblock %}" href="{% url 'patients:dependents_list' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg>
+                        Dependentes
+                    </a>
+                    <a class="nav-item {% block nav_notifications %}{% endblock %}" href="{% url 'notifications:center' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
+                        Notificações
+                    </a>
+                </nav>
+            {% elif request.user.role == 'professional' %}
+                <a class="new-chat" href="{% url 'care:queue_dashboard' %}">
+                    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+                    Abrir fila clínica
+                </a>
+                <nav class="sidebar-nav" aria-label="Navegação médica">
+                    <a class="nav-item {% block nav_med_home %}{% endblock %}" href="{% url 'users:professional_portal' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10M9 20v-6h6v6"></path></svg>
+                        Início
+                    </a>
+                    <a class="nav-item {% block nav_med_queue %}{% endblock %}" href="{% url 'care:queue_dashboard' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 14a4 4 0 0 1-4 4H9l-6 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path></svg>
+                        Fila &amp; Chat médico
+                    </a>
+                    <a class="nav-item {% block nav_med_avail %}{% endblock %}" href="{% url 'professionals:availability' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                        Plantão e turnos
+                    </a>
+                    <a class="nav-item {% block nav_med_notif %}{% endblock %}" href="{% url 'notifications:center' %}">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5M12 8h.01"></path></svg>
+                        Notificações
+                    </a>
+                </nav>
+            {% else %}
+                <a class="new-chat" href="{% url 'audit:monitoring' %}">
+                    <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                    Monitoramento
+                </a>
+                <nav class="sidebar-nav" aria-label="Navegação administrativa">
+                    <a class="nav-item" href="/admin/">Painel Admin</a>
+                    <a class="nav-item" href="{% url 'professionals:admin_list' %}">Médicos</a>
+                    <a class="nav-item" href="{% url 'audit:admin_accounts' %}">Administradores</a>
+                    <a class="nav-item" href="{% url 'audit:access_history' %}">Auditoria</a>
+                </nav>
+            {% endif %}
+        </div>
+
+        <div class="sidebar-bottom">
+            <div class="security-note">
+                <span>
+                    <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"></path>
+                        <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                </span>
+                <div>
+                    <strong>Seus dados estão seguros</strong>
+                    <p>Proteção e privacidade em cada conversa.</p>
+                </div>
+            </div>
+
+            <div class="profile-box">
+                <span class="avatar" aria-hidden="true">
+                    {{ request.user.first_name|default:request.user.email|slice:":2" }}
+                </span>
+                <div class="profile-copy">
+                    <strong>{{ request.user.get_full_name|default:request.user.email }}</strong>
+                    <small>{{ request.user.get_role_display }}</small>
+                </div>
+                <form method="post" action="{% url 'users:logout' %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="sidebar-logout-btn" title="Sair" aria-label="Sair">
+                        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M10 17v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2M15 17l5-5-5-5M20 12H9"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <main id="conteudo" class="chat-panel">
+        <header class="chat-header">
+            <div class="header-main">
+                <button type="button" class="mobile-menu" id="mobile-menu-btn" aria-label="Abrir menu">
+                    <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+                </button>
+                {% block header_icon %}
+                <div class="header-avatar">
+                    <span class="assistant-avatar">
+                        <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+                    </span>
+                    <span class="online-dot"></span>
+                </div>
+                {% endblock %}
+                <div class="header-copy">
+                    <div class="title-line">
+                        <h1>{% block header_title %}MEDIX.AI{% endblock %}</h1>
+                        {% block header_badge %}<span class="online-label">Online</span>{% endblock %}
+                    </div>
+                    <p>{% block header_subtitle %}Assistente virtual de saúde{% endblock %}</p>
+                </div>
+            </div>
+            <div class="session-meta">
+                {% block header_right %}
+                    <a class="cancel-intake" href="{% url 'users:password_change' %}">Alterar senha</a>
+                {% endblock %}
+            </div>
+        </header>
+
+        {% block app_content %}{% endblock %}
+    </main>
+</div>
+
+<script>
+(function () {
+    const btn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.getElementById('app-sidebar');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (btn && sidebar && backdrop) {
+        const toggle = (open) => {
+            sidebar.classList.toggle('is-open', open);
+            backdrop.classList.toggle('is-open', open);
+        };
+        btn.addEventListener('click', () => toggle(true));
+        backdrop.addEventListener('click', () => toggle(false));
+    }
+})();
+</script>
+{% endblock %}

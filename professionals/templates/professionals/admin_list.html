@@ -1,71 +1,70 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Gestão de Médicos — MEDIX.AI{% endblock %}
+{% block header_title %}Cadastro e homologação de médicos{% endblock %}
+{% block header_subtitle %}Provisionamento, validação CRM/ICP-Brasil e suspensão{% endblock %}
+{% block header_right %}
+<a class="cancel-intake" href="{% url 'admin:index' %}">Voltar ao Admin</a>
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">ADMINISTRAÇÃO</p>
-        <h1>Cadastro e homologação de médicos</h1>
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        <div class="review-card">
+            <h2 style="margin-top:0;">Novo médico</h2>
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="audit-filter-grid">
+                    {% for field in form %}
+                        <div class="field-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button class="continue-button" style="width:auto; padding:0 26px; height:44px;" type="submit">Cadastrar médico</button>
+            </form>
+        </div>
 
-        {% if messages %}
-            <div role="status" aria-live="polite">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <form method="post" enctype="multipart/form-data" novalidate>
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div role="alert">{{ form.non_field_errors }}</div>
+        <div class="review-card">
+            <h2 style="margin-top:0;">Médicos cadastrados</h2>
+            {% if profissionais %}
+                <ul class="item-list">
+                    {% for medico in profissionais %}
+                        <li class="item-row">
+                            <div class="item-meta">
+                                <div>
+                                    <strong>{{ medico.user.get_full_name|default:medico.user.email }}</strong>
+                                    <span class="badge {% if medico.homologation_status == 'approved' %}badge-green{% elif medico.homologation_status == 'suspended' %}badge-red{% else %}badge-yellow{% endif %}">
+                                        {{ medico.get_homologation_status_display }}
+                                    </span>
+                                </div>
+                                <small>CRM {{ medico.crm_number }}/{{ medico.crm_uf }} · {{ medico.get_availability_display }}</small>
+                            </div>
+                            <div class="portal-actions">
+                                {% if medico.homologation_status == 'pending' %}
+                                    <form method="post" action="{% url 'professionals:admin_homologate' medico.pk %}" class="portal-actions">
+                                        {% csrf_token %}
+                                        {{ homologate_form }}
+                                        <button class="continue-button" style="width:auto; height:36px; padding:0 14px; margin:0; font-size:12px;" type="submit">Homologar</button>
+                                    </form>
+                                {% endif %}
+                                {% if medico.homologation_status != 'suspended' %}
+                                    <form method="post" action="{% url 'professionals:admin_suspend' medico.pk %}">
+                                        {% csrf_token %}
+                                        <button class="button-secondary" type="submit">Suspender</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="intro">Nenhum médico cadastrado.</p>
             {% endif %}
-            <fieldset>
-                <legend>Novo médico</legend>
-                {% for field in form %}
-                    <div class="field-group">
-                        {{ field.label_tag }}
-                        {{ field }}
-                        {% if field.errors %}
-                            <div role="alert">{{ field.errors }}</div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </fieldset>
-            <button class="button-primary" type="submit">Cadastrar médico</button>
-        </form>
-
-        <h2>Médicos cadastrados</h2>
-        {% if profissionais %}
-            <ul>
-                {% for medico in profissionais %}
-                    <li>
-                        <strong>{{ medico.user.get_full_name }}</strong>
-                        — CRM {{ medico.crm_number }}/{{ medico.crm_uf }}
-                        — {{ medico.get_homologation_status_display }}
-                        ({{ medico.get_availability_display }})
-                        {% if medico.homologation_status == 'pending' %}
-                            <form method="post" action="{% url 'professionals:admin_homologate' medico.pk %}" style="display:inline;">
-                                {% csrf_token %}
-                                {{ homologate_form }}
-                                <button class="button-primary" type="submit">Homologar</button>
-                            </form>
-                        {% endif %}
-                        {% if medico.homologation_status != 'suspended' %}
-                            <form method="post" action="{% url 'professionals:admin_suspend' medico.pk %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button class="button-secondary" type="submit">Suspender</button>
-                            </form>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Nenhum médico cadastrado.</p>
-        {% endif %}
-
-        <p><a class="button-secondary" href="{% url 'admin:index' %}">Voltar ao Admin</a></p>
-    </section>
-</main>
+        </div>
+    </div>
+</div>
 {% endblock %}

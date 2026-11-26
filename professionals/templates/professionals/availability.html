@@ -1,43 +1,41 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Disponibilidade Médica — MEDIX.AI{% endblock %}
+{% block nav_med_avail %}active{% endblock %}
+{% block header_title %}Plantão e disponibilidade{% endblock %}
+{% block header_subtitle %}Gerencie seu status de atendimento e telefone operacional{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">PLANTÃO MÉDICO</p>
-        <h1>Disponibilidade e telefone operacional</h1>
-        <p>
-            CRM {{ perfil.crm_number }}/{{ perfil.crm_uf }} |
-            CRM regular: {% if perfil.crm_regular %}Sim{% else %}Não{% endif %} |
-            ICP-Brasil: {% if perfil.icp_brasil_active %}Ativo{% else %}Inativo{% endif %}
-        </p>
-
-        {% if messages %}
-            <div role="status" aria-live="polite">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div role="alert">{{ form.non_field_errors }}</div>
-            {% endif %}
-            {% for field in form %}
-                <div class="field-group">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {% if field.errors %}
-                        <div role="alert">{{ field.errors }}</div>
-                    {% endif %}
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        <div class="review-card">
+            <div class="baseline-card" style="margin-bottom:20px;">
+                <span class="baseline-icon">✓</span>
+                <div>
+                    <strong>CRM {{ perfil.crm_number }}/{{ perfil.crm_uf }}</strong>
+                    <p>CRM regular: {% if perfil.crm_regular %}Sim{% else %}Não{% endif %} · Certificado ICP-Brasil: {% if perfil.icp_brasil_active %}Ativo{% else %}Inativo{% endif %}</p>
                 </div>
-            {% endfor %}
-            <button class="button-primary" type="submit">Atualizar disponibilidade</button>
-            <a class="button-secondary" href="{% url 'users:professional_portal' %}">Voltar ao portal</a>
-        </form>
-    </section>
-</main>
+                <span class="read-only-badge">{{ perfil.get_availability_display }}</span>
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="audit-filter-grid">
+                    {% for field in form %}
+                        <div class="field-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="portal-actions" style="margin-top:20px;">
+                    <button class="continue-button" style="width:auto; padding:0 28px; height:46px; margin:0;" type="submit">Atualizar disponibilidade</button>
+                    <a class="cancel-intake" href="{% url 'users:professional_portal' %}">Voltar ao portal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

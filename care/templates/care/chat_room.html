@@ -1,26 +1,22 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Chat Médico — MEDIX.AI{% endblock %}
+{% block nav_med_queue %}active{% endblock %}
+{% block header_title %}Atendimento médico síncrono{% endblock %}
+{% block header_subtitle %}Chat clínico com {{ resumo.nome }}{% endblock %}
+{% block header_right %}
+{% if eh_medico %}
+    <a class="cancel-intake" href="{% url 'care:queue_dashboard' %}">Voltar à fila</a>
+{% else %}
+    <a class="cancel-intake" href="{% url 'users:patient_portal' %}">Voltar ao portal</a>
+{% endif %}
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            {% if eh_medico %}
-                <a class="button-secondary" href="{% url 'care:queue_dashboard' %}">Voltar à fila</a>
-            {% else %}
-                <a class="button-secondary" href="{% url 'users:patient_portal' %}">Portal do paciente</a>
-            {% endif %}
-        </nav>
-    </header>
-
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">ATENDIMENTO SÍNCRONO CRIPTOGRAFADO</p>
-        <h1>Chat clínico — {{ resumo.nome }}</h1>
-
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
         <div class="split-layout">
-            <aside class="panel-surface" aria-label="Resumo clínico e alergias">
+            <aside class="review-card" aria-label="Resumo clínico e alergias">
                 <h2 style="margin-top:0;">Resumo clínico</h2>
                 <p><strong>Paciente:</strong> {{ resumo.nome }} ({{ resumo.idade }} anos, {{ resumo.genero }})</p>
                 <p><strong>Manchester:</strong> <span class="badge badge-blue">{{ resumo.cor_manchester }}</span></p>
@@ -30,15 +26,12 @@
                 <p><strong>Tipo sanguíneo:</strong> {{ resumo.tipo_sanguineo }}</p>
                 <p><strong>Hipertensão:</strong> {% if resumo.hipertensao %}Sim{% else %}Não{% endif %} | <strong>Diabetes:</strong> {% if resumo.diabetes %}Sim{% else %}Não{% endif %}</p>
                 <p><strong>Medicamentos contínuos:</strong> {{ resumo.medicamentos_continuos }}</p>
-                <p><strong>Sintomas relatados:</strong> {{ resumo.sintomas }}</p>
-                {% if resumo.resumo_ia %}
-                    <p><strong>Resumo da triagem:</strong> {{ resumo.resumo_ia }}</p>
-                {% endif %}
+                <p><strong>Sintomas:</strong> {{ resumo.sintomas }}</p>
 
                 {% if eh_medico and not sessao.is_closed %}
                     <hr>
                     <h3>Copiloto Clínico (Gemini IA)</h3>
-                    <p><small>Gera síntese desidentificada (sem nome/CPF) para apoio à decisão médica.</small></p>
+                    <p><small>Síntese desidentificada (ADR 0003) para apoio à decisão médica.</small></p>
                     <button
                         type="button"
                         id="btn-ai-assist"
@@ -52,97 +45,97 @@
             </aside>
 
             <div>
-                <div
-                    id="chat-feed"
-                    class="chat-feed"
-                    data-poll-url="{% url 'care:chat_messages_poll' session_id=sessao.pk %}"
-                    data-closed="{{ sessao.is_closed|yesno:'true,false' }}"
-                    aria-live="polite"
-                >
-                    {% if mensagens %}
-                        {% for msg in mensagens %}
-                            <article class="chat-bubble {% if msg.sender_id == request.user.id %}chat-bubble-mine{% else %}chat-bubble-other{% endif %}">
-                                <div class="chat-bubble-header">
-                                    <strong>{{ msg.sender.get_full_name|default:msg.sender.email }}</strong>
-                                    <span>{{ msg.created_at|date:"d/m/Y H:i:s" }} · {% if msg.read_at %}lida{% else %}entregue{% endif %}</span>
+                <div class="review-card">
+                    <div
+                        id="chat-feed"
+                        class="chat-feed"
+                        data-poll-url="{% url 'care:chat_messages_poll' session_id=sessao.pk %}"
+                        data-closed="{{ sessao.is_closed|yesno:'true,false' }}"
+                        aria-live="polite"
+                    >
+                        {% if mensagens %}
+                            {% for msg in mensagens %}
+                                <div class="message-row {% if msg.sender_id == request.user.id %}user{% else %}assistant{% endif %}">
+                                    <div class="message-stack">
+                                        <span class="sender-name">{{ msg.sender.get_full_name|default:msg.sender.email }}</span>
+                                        <div class="message-bubble">
+                                            <p>{{ msg.content }}</p>
+                                            {% if msg.is_from_audio_transcription %}<small><em>(transcrito de áudio)</em></small>{% endif %}
+                                            {% for anexo in msg.attachments.all %}
+                                                <div><small>📎 {{ anexo.original_name }} ({{ anexo.content_type }})</small></div>
+                                            {% endfor %}
+                                        </div>
+                                        <span class="message-time">{{ msg.created_at|date:"d/m/Y H:i:s" }} · {% if msg.read_at %}lida{% else %}entregue{% endif %}</span>
+                                    </div>
                                 </div>
-                                <p class="chat-bubble-body">{{ msg.content }}</p>
-                                {% if msg.is_from_audio_transcription %}<small><em>(transcrito de áudio)</em></small>{% endif %}
-                                {% for anexo in msg.attachments.all %}
-                                    <div><small>📎 Anexo: {{ anexo.original_name }} ({{ anexo.content_type }})</small></div>
-                                {% endfor %}
-                            </article>
-                        {% endfor %}
-                    {% else %}
-                        <p class="intro" id="chat-empty-state">Nenhuma mensagem enviada ainda. Inicie o diálogo abaixo.</p>
-                    {% endif %}
-                </div>
-
-                {% if sessao.is_closed %}
-                    <div class="alert-box" role="status">
-                        <p><strong>Sessão encerrada em {{ sessao.closed_at|date:"d/m/Y H:i" }}.</strong> O diálogo é imutável.</p>
-                        {% if sessao.clinical_outcome %}
-                            <p><strong>Desfecho:</strong> {{ sessao.clinical_outcome.get_outcome_type_display }}</p>
-                            <p><strong>Conduta:</strong> {{ sessao.clinical_outcome.summary_and_conduct }}</p>
+                            {% endfor %}
+                        {% else %}
+                            <p class="intro">Nenhuma mensagem enviada ainda. Inicie o diálogo abaixo.</p>
                         {% endif %}
                     </div>
-                {% else %}
-                    <form method="post" enctype="multipart/form-data" novalidate class="panel-surface" style="margin-top:1rem;">
-                        {% csrf_token %}
-                        {% for field in message_form %}
-                            <div class="field-group">
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                {{ field.errors }}
-                            </div>
-                        {% endfor %}
-                        <button class="button-primary" type="submit">Enviar mensagem</button>
-                    </form>
 
-                    {% if eh_medico %}
-                        <form method="post" action="{% url 'care:close_chat' session_id=sessao.pk %}" novalidate class="panel-surface" style="margin-top:1.25rem;">
+                    {% if sessao.is_closed %}
+                        <div class="alert-box" role="status" style="margin-top:16px;">
+                            <p><strong>Sessão encerrada em {{ sessao.closed_at|date:"d/m/Y H:i" }}.</strong> O diálogo é imutável.</p>
+                            {% if sessao.clinical_outcome %}
+                                <p><strong>Desfecho:</strong> {{ sessao.clinical_outcome.get_outcome_type_display }}</p>
+                                <p><strong>Conduta:</strong> {{ sessao.clinical_outcome.summary_and_conduct }}</p>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <form method="post" enctype="multipart/form-data" novalidate style="margin-top:16px;">
                             {% csrf_token %}
-                            <h2 style="margin-top:0;">Encerrar atendimento e registrar desfecho obrigatório</h2>
-                            {% for field in outcome_form %}
+                            {% for field in message_form %}
                                 <div class="field-group">
                                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                                     {{ field }}
                                     {{ field.errors }}
                                 </div>
                             {% endfor %}
-                            <button class="button-secondary" type="submit">Registrar desfecho e encerrar</button>
+                            <button class="continue-button" type="submit">Enviar mensagem</button>
                         </form>
                     {% endif %}
+                </div>
+
+                {% if eh_medico and not sessao.is_closed %}
+                    <form method="post" action="{% url 'care:close_chat' session_id=sessao.pk %}" novalidate class="review-card">
+                        {% csrf_token %}
+                        <h2 style="margin-top:0;">Desfecho clínico e encerramento obrigatório</h2>
+                        {% for field in outcome_form %}
+                            <div class="field-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {{ field.errors }}
+                            </div>
+                        {% endfor %}
+                        <button class="continue-button" type="submit">Registrar desfecho e encerrar atendimento</button>
+                    </form>
                 {% endif %}
             </div>
         </div>
-    </section>
-</main>
+    </div>
+</div>
 
 <script>
 (function () {
     const feed = document.getElementById('chat-feed');
     if (feed && feed.dataset.closed === 'false') {
         const pollUrl = feed.dataset.pollUrl;
-        const renderMessages = (items) => {
-            if (!items.length) return;
-            feed.innerHTML = items.map((m) => {
-                const cls = m.is_mine ? 'chat-bubble chat-bubble-mine' : 'chat-bubble chat-bubble-other';
-                const audioTag = m.is_audio ? '<small><em>(transcrito de áudio)</em></small>' : '';
-                const anexos = (m.attachments || []).map(a => `<div><small>📎 Anexo: ${a.name} (${a.type})</small></div>`).join('');
-                const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-                return `<article class="${cls}"><div class="chat-bubble-header"><strong>${esc(m.sender_name)}</strong><span>${esc(m.created_at)} · ${esc(m.status)}</span></div><p class="chat-bubble-body">${esc(m.content)}</p>${audioTag}${anexos}</article>`;
-            }).join('');
-        };
+        const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         setInterval(async () => {
             try {
                 const resp = await fetch(pollUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
                 if (!resp.ok) return;
                 const data = await resp.json();
-                renderMessages(data.messages || []);
-                if (data.is_closed) {
-                    window.location.reload();
+                const items = data.messages || [];
+                if (items.length) {
+                    feed.innerHTML = items.map((m) => {
+                        const cls = m.is_mine ? 'message-row user' : 'message-row assistant';
+                        const anexos = (m.attachments || []).map(a => `<div><small>📎 ${esc(a.name)} (${esc(a.type)})</small></div>`).join('');
+                        return `<div class="${cls}"><div class="message-stack"><span class="sender-name">${esc(m.sender_name)}</span><div class="message-bubble"><p>${esc(m.content)}</p>${anexos}</div><span class="message-time">${esc(m.created_at)} · ${esc(m.status)}</span></div></div>`;
+                    }).join('');
                 }
+                if (data.is_closed) window.location.reload();
             } catch (_e) {}
         }, 2500);
     }

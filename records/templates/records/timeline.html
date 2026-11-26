@@ -1,55 +1,68 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
-{% block title %}Prontuário Clínico — MEDIX.AI{% endblock %}
+{% block title %}Prontuário Eletrônico — MEDIX.AI{% endblock %}
+{% block nav_records %}active{% endblock %}
+{% block header_title %}Prontuário eletrônico{% endblock %}
+{% block header_subtitle %}Histórico imutável de atendimentos (retenção mínima de 20 anos){% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Voltar ao portal</a>
-        </nav>
-    </header>
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">PRONTUÁRIO E HISTÓRICO (RETENÇÃO MÍNIMA DE 20 ANOS)</p>
-        <h1>Linha do tempo clínica</h1>
-
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
         {% if dependentes %}
+        <div class="review-card">
             <div class="portal-actions">
                 <a class="button-secondary" href="{% url 'records:timeline' %}">Meu prontuário</a>
                 {% for dep in dependentes %}
                     <a class="button-secondary" href="{% url 'records:timeline' %}?dependent_id={{ dep.pk }}">{{ dep.full_name }}</a>
                 {% endfor %}
             </div>
+        </div>
         {% endif %}
 
-        <form method="get" novalidate>
-            {{ form.as_p }}
-            <button class="button-primary" type="submit">Filtrar histórico</button>
+        <form method="get" novalidate class="review-card">
+            <h2 style="margin-top:0;">Filtros do prontuário</h2>
+            <div class="audit-filter-grid">
+                {% for field in form %}
+                    <div class="field-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+            </div>
+            <button class="continue-button" style="width:auto; padding:0 24px; height:44px;" type="submit">Filtrar histórico</button>
         </form>
 
-        {% if eventos %}
-            <ul>
-                {% for ev in eventos %}
-                    <li>
-                        <strong>{{ ev.occurred_at|date:"d/m/Y H:i" }}</strong> —
-                        <span>{{ ev.event_type_label }}</span>
-                        {% if ev.risk_color_label %}({{ ev.risk_color_label }}){% endif %}
-                        — <em>{{ ev.professional_name }}</em>:
-                        {{ ev.summary }}
-                        {% if ev.amendments %}
-                            <ul>
-                                {% for ret in ev.amendments %}
-                                    <li><strong>Retificação ({{ ret.created_at|date:"d/m/Y H:i" }}):</strong> {{ ret.amendment_text }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Nenhum evento encontrado para os filtros informados.</p>
-        {% endif %}
-    </section>
-</main>
+        <div class="review-card">
+            <h2 style="margin-top:0;">Linha do tempo clínica</h2>
+            {% if eventos %}
+                <ul class="item-list">
+                    {% for ev in eventos %}
+                        <li class="item-row">
+                            <div class="item-meta">
+                                <div>
+                                    {% if ev.risk_color %}
+                                        <span class="badge badge-{{ ev.risk_color }}">{{ ev.risk_color_label }}</span>
+                                    {% endif %}
+                                    <strong>{{ ev.event_type_label }}</strong> — <em>{{ ev.professional_name }}</em>
+                                </div>
+                                <small>{{ ev.occurred_at|date:"d/m/Y H:i" }}</small>
+                                <p style="margin:6px 0 0;">{{ ev.summary }}</p>
+                                {% if ev.amendments %}
+                                    <ul>
+                                        {% for ret in ev.amendments %}
+                                            <li><strong>Retificação ({{ ret.created_at|date:"d/m/Y H:i" }}):</strong> {{ ret.amendment_text }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="intro">Nenhum evento encontrado para os filtros informados.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

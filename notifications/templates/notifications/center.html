@@ -1,56 +1,83 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Central de Notificações — MEDIX.AI{% endblock %}
+{% block nav_notifications %}active{% endblock %}
+{% block nav_med_notif %}active{% endblock %}
+{% block header_title %}Central de notificações{% endblock %}
+{% block header_subtitle %}Alertas clínicos, avisos e preferências de canais{% endblock %}
+{% block header_right %}
+<form method="post" action="{% url 'notifications:clear_informative' %}" style="margin:0;">
+    {% csrf_token %}
+    <button class="cancel-intake" type="submit">Limpar informativas lidas</button>
+</form>
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Voltar</a>
-        </nav>
-    </header>
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">NOTIFICAÇÕES E ALERTAS</p>
-        <h1>Central de notificações</h1>
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        <div class="split-layout">
+            <form method="post" action="{% url 'notifications:preferences' %}" class="review-card">
+                {% csrf_token %}
+                <h2 style="margin-top:0;">Preferências de canais</h2>
+                <p class="intro" style="margin-bottom:14px;">Alertas urgentes obrigatórios não são suprimidos por preferências.</p>
+                <div class="field-group field-group-checkbox">
+                    <input id="pref_push" type="checkbox" name="allow_push" {% if preferencias.allow_push %}checked{% endif %}>
+                    <label for="pref_push">Web Push no navegador</label>
+                </div>
+                <div class="field-group field-group-checkbox">
+                    <input id="pref_sms" type="checkbox" name="allow_sms" {% if preferencias.allow_sms %}checked{% endif %}>
+                    <label for="pref_sms">SMS (inclui fallback de 30s)</label>
+                </div>
+                <div class="field-group field-group-checkbox">
+                    <input id="pref_email" type="checkbox" name="allow_email" {% if preferencias.allow_email %}checked{% endif %}>
+                    <label for="pref_email">E-mail</label>
+                </div>
+                <div class="field-group field-group-checkbox">
+                    <input id="pref_wa" type="checkbox" name="allow_whatsapp" {% if preferencias.allow_whatsapp %}checked{% endif %}>
+                    <label for="pref_wa">WhatsApp</label>
+                </div>
+                <div class="field-group field-group-checkbox">
+                    <input id="pref_info" type="checkbox" name="allow_informative" {% if preferencias.allow_informative %}checked{% endif %}>
+                    <label for="pref_info">Receber avisos informativos</label>
+                </div>
+                <button class="continue-button" type="submit">Salvar preferências</button>
+            </form>
 
-        <form method="post" action="{% url 'notifications:clear_informative' %}">
-            {% csrf_token %}
-            <button class="button-secondary" type="submit">Limpar informativas lidas</button>
-        </form>
-
-        {% if notificacoes %}
-            <ul>
-                {% for n in notificacoes %}
-                    <li>
-                        <strong>[{{ n.get_priority_display }}] {{ n.subject }}</strong>
-                        ({{ n.get_channel_display }} — {{ n.get_status_display }}) — {{ n.body }}
-                        {% if n.deep_link %}<a href="{{ n.deep_link }}">Abrir</a>{% endif %}
-                        {% if not n.read_at %}
-                            <form method="post" action="{% url 'notifications:mark_read' notification_id=n.pk %}" style="display:inline;">
-                                {% csrf_token %}
-                                <button class="button-secondary" type="submit">Marcar como lida</button>
-                            </form>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Nenhuma notificação na central.</p>
-        {% endif %}
-
-        <hr>
-        <h2>Preferências de canais</h2>
-        <p>Alertas urgentes obrigatórios não são suprimidos por preferências.</p>
-        <form method="post" action="{% url 'notifications:preferences' %}">
-            {% csrf_token %}
-            <label><input type="checkbox" name="allow_push" {% if preferencias.allow_push %}checked{% endif %}> Web Push</label><br>
-            <label><input type="checkbox" name="allow_sms" {% if preferencias.allow_sms %}checked{% endif %}> SMS</label><br>
-            <label><input type="checkbox" name="allow_email" {% if preferencias.allow_email %}checked{% endif %}> E-mail</label><br>
-            <label><input type="checkbox" name="allow_whatsapp" {% if preferencias.allow_whatsapp %}checked{% endif %}> WhatsApp</label><br>
-            <label><input type="checkbox" name="allow_informative" {% if preferencias.allow_informative %}checked{% endif %}> Avisos informativos</label><br>
-            <button class="button-primary" type="submit">Salvar preferências</button>
-        </form>
-    </section>
-</main>
+            <div class="review-card">
+                <h2 style="margin-top:0;">Avisos recentes</h2>
+                {% if notificacoes %}
+                    <ul class="item-list">
+                        {% for n in notificacoes %}
+                            <li class="item-row">
+                                <div class="item-meta">
+                                    <div>
+                                        <span class="badge {% if n.priority == 'urgent' %}badge-red{% elif n.priority == 'moderate' %}badge-yellow{% else %}badge-blue{% endif %}">
+                                            {{ n.get_priority_display }}
+                                        </span>
+                                        <strong>{{ n.subject }}</strong>
+                                    </div>
+                                    <p style="margin:4px 0 0;">{{ n.body }}</p>
+                                    <small>{{ n.get_channel_display }} · {{ n.get_status_display }} · {{ n.created_at|date:"d/m/Y H:i" }}</small>
+                                </div>
+                                <div class="portal-actions">
+                                    {% if n.deep_link %}
+                                        <a class="continue-button" style="width:auto; height:36px; padding:0 14px; margin:0; font-size:12px;" href="{{ n.deep_link }}">Abrir</a>
+                                    {% endif %}
+                                    {% if not n.read_at %}
+                                        <form method="post" action="{% url 'notifications:mark_read' notification_id=n.pk %}">
+                                            {% csrf_token %}
+                                            <button class="button-secondary" type="submit">Marcar lida</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="intro">Nenhuma notificação na central.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,21 +1,18 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
-{% block title %}Revisão de Prescrição — MEDIX.AI{% endblock %}
+{% block title %}Revisão Clínica — MEDIX.AI{% endblock %}
+{% block nav_med_queue %}active{% endblock %}
+{% block header_title %}Revisão clínica{% endblock %}
+{% block header_subtitle %}Parecer médico e validação da prescrição (ICP-Brasil){% endblock %}
+{% block header_right %}
+<a class="cancel-intake" href="{% url 'care:queue_dashboard' %}">Voltar à fila</a>
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            <a class="button-secondary" href="{% url 'care:queue_dashboard' %}">Voltar à fila</a>
-        </nav>
-    </header>
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">VALIDAÇÃO MÉDICA DE PRESCRIÇÃO (ICP-BRASIL)</p>
-        <h1>Revisão da triagem #{{ triage_id }}</h1>
-
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
         <div class="split-layout">
-            <aside class="panel-surface">
+            <aside class="review-card">
                 <h2 style="margin-top:0;">Dados da triagem e perfil clínico</h2>
                 <p><strong>Paciente:</strong> {{ paciente_nome }} ({{ paciente_genero }})</p>
                 <p><strong>Classificação:</strong> <span class="badge badge-{{ triagem.risk_color }}">{{ triagem.get_risk_color_display }}</span></p>
@@ -34,9 +31,10 @@
                 <p><strong>Comorbidades:</strong> Hipertensão: {% if perfil_clinico.has_hypertension %}Sim{% else %}Não{% endif %} | Diabetes: {% if perfil_clinico.has_diabetes %}Sim{% else %}Não{% endif %}</p>
             </aside>
 
-            <form method="post" novalidate class="panel-surface">
+            <form method="post" novalidate class="review-card">
                 {% csrf_token %}
                 <input type="hidden" name="queue_item_id" value="{{ queue_item_id }}">
+                <h2 style="margin-top:0;">Parecer e decisão médica</h2>
                 {{ form.non_field_errors }}
                 {% for field in form %}
                     <div class="field-group">
@@ -45,9 +43,9 @@
                         {{ field.errors }}
                     </div>
                 {% endfor %}
-                <button class="button-primary" type="submit">Registrar parecer e assinar decisão</button>
+                <button class="continue-button" type="submit">Registrar parecer e assinar decisão</button>
             </form>
         </div>
-    </section>
-</main>
+    </div>
+</div>
 {% endblock %}

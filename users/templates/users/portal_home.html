@@ -1,117 +1,100 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}{{ nome_portal }} — MEDIX.AI{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block nav_med_home %}active{% endblock %}
+{% block header_title %}{{ nome_portal }}{% endblock %}
+{% block header_subtitle %}Bem-vindo(a), {{ request.user.get_full_name|default:request.user.email }}{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark" aria-label="MEDIX.AI">
-            <span class="brand-mark" aria-hidden="true">+</span>
-            <span>MEDIX<span class="brand-accent">.AI</span></span>
-        </div>
-        <nav class="portal-actions" aria-label="Conta">
-            {% if request.user.role == 'patient' %}
-                <a class="button-secondary" href="{% url 'notifications:center' %}">
-                    Notificações{% if notificacoes_nao_lidas %} <span class="badge badge-blue">{{ notificacoes_nao_lidas }}</span>{% endif %}
-                </a>
-            {% endif %}
-            <a class="button-secondary" href="{% url 'users:password_change' %}">Alterar senha</a>
-            <form method="post" action="{% url 'users:logout' %}">
-                {% csrf_token %}
-                <button class="button-secondary" type="submit">Sair</button>
-            </form>
-        </nav>
-    </header>
-
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">ACESSO AUTENTICADO</p>
-        <h1>{{ nome_portal }}</h1>
-        <p class="intro">Bem-vindo(a), {{ request.user.get_full_name|default:request.user.email }}.</p>
-
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
         {% if request.user.role == 'patient' %}
-            <div class="card-grid" role="navigation" aria-label="Ações do paciente">
-                <a class="feature-card" href="{% url 'triage:start' %}">
-                    <span class="feature-card-tag">TRIAGEM IA</span>
-                    <h3>Iniciar nova triagem</h3>
-                    <p>Relate sintomas por texto ou voz para classificação de risco Manchester.</p>
-                </a>
-                <a class="feature-card" href="{% url 'triage:list' %}">
-                    <span class="feature-card-tag">HISTÓRICO</span>
-                    <h3>Minhas triagens</h3>
-                    <p>Acompanhe triagens concluídas, orientações e encaminhamentos.</p>
-                </a>
-                <a class="feature-card" href="{% url 'prescriptions:list' %}">
-                    <span class="feature-card-tag">RECEITAS ICP-BRASIL</span>
-                    <h3>Minhas receitas digitais</h3>
-                    <p>Consulte receitas assinadas, baixe o PDF e acesse o código QR.</p>
-                </a>
-                <a class="feature-card" href="{% url 'records:timeline' %}">
-                    <span class="feature-card-tag">PRONTUÁRIO</span>
-                    <h3>Prontuário clínico</h3>
-                    <p>Linha do tempo completa com filtros por período, cor e palavra-chave.</p>
-                </a>
-                <a class="feature-card" href="{% url 'patients:profile' %}">
-                    <span class="feature-card-tag">SAÚDE</span>
-                    <h3>Meu perfil clínico</h3>
-                    <p>Atualize alergias, tipo sanguíneo, medicamentos contínuos e dados pessoais.</p>
-                </a>
-                <a class="feature-card" href="{% url 'patients:dependents_list' %}">
-                    <span class="feature-card-tag">FAMÍLIA</span>
-                    <h3>Meus dependentes</h3>
-                    <p>Gerencie dependentes sob sua responsabilidade legal.</p>
-                </a>
+            <div class="review-card">
+                <div class="card-grid" role="navigation" aria-label="Ações do paciente">
+                    <a class="feature-card" href="{% url 'triage:start' %}">
+                        <span class="feature-card-tag">TRIAGEM IA</span>
+                        <h3>Iniciar nova triagem</h3>
+                        <p>Relate sintomas por texto ou voz para classificação de risco Manchester.</p>
+                    </a>
+                    <a class="feature-card" href="{% url 'triage:list' %}">
+                        <span class="feature-card-tag">HISTÓRICO</span>
+                        <h3>Minhas triagens</h3>
+                        <p>Acompanhe triagens concluídas, orientações e encaminhamentos.</p>
+                    </a>
+                    <a class="feature-card" href="{% url 'prescriptions:list' %}">
+                        <span class="feature-card-tag">RECEITAS ICP-BRASIL</span>
+                        <h3>Minhas receitas digitais</h3>
+                        <p>Consulte receitas assinadas, baixe o PDF e acesse o código QR.</p>
+                    </a>
+                    <a class="feature-card" href="{% url 'records:timeline' %}">
+                        <span class="feature-card-tag">PRONTUÁRIO</span>
+                        <h3>Prontuário clínico</h3>
+                        <p>Linha do tempo completa com filtros por período, cor e palavra-chave.</p>
+                    </a>
+                    <a class="feature-card" href="{% url 'patients:profile' %}">
+                        <span class="feature-card-tag">SAÚDE</span>
+                        <h3>Meu perfil clínico</h3>
+                        <p>Atualize alergias, tipo sanguíneo, medicamentos contínuos e dados pessoais.</p>
+                    </a>
+                    <a class="feature-card" href="{% url 'patients:dependents_list' %}">
+                        <span class="feature-card-tag">FAMÍLIA</span>
+                        <h3>Meus dependentes</h3>
+                        <p>Gerencie dependentes sob sua responsabilidade legal.</p>
+                    </a>
+                </div>
             </div>
 
             {% if chats_paciente %}
-                <h2>Meus atendimentos por chat</h2>
-                <ul class="item-list">
-                    {% for chat in chats_paciente %}
-                        <li class="item-row">
-                            <div class="item-meta">
-                                <strong>Chat com {{ chat.professional.user.get_full_name|default:chat.professional.user.email }}</strong>
-                                <small>Iniciado em {{ chat.created_at|date:"d/m/Y H:i" }} — {% if chat.is_closed %}Encerrado{% else %}Em andamento{% endif %}</small>
-                            </div>
-                            <a class="button-primary button-inline" href="{% url 'care:chat_room' session_id=chat.pk %}">
-                                {% if chat.is_closed %}Ver histórico{% else %}Entrar no chat{% endif %}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <div class="review-card">
+                    <h2 style="margin-top:0;">Meus atendimentos por chat</h2>
+                    <ul class="item-list">
+                        {% for chat in chats_paciente %}
+                            <li class="item-row">
+                                <div class="item-meta">
+                                    <strong>Chat com {{ chat.professional.user.get_full_name|default:chat.professional.user.email }}</strong>
+                                    <small>Iniciado em {{ chat.created_at|date:"d/m/Y H:i" }} — {% if chat.is_closed %}Encerrado{% else %}Em andamento{% endif %}</small>
+                                </div>
+                                <a class="continue-button" style="width:auto; height:40px; padding:0 18px; margin:0; font-size:13px;" href="{% url 'care:chat_room' session_id=chat.pk %}">
+                                    {% if chat.is_closed %}Ver histórico{% else %}Entrar no chat{% endif %}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% endif %}
 
         {% elif request.user.role == 'professional' %}
-            {% if perfil_medico %}
-                <div class="alert-box alert-box-mint">
-                    <strong>Status atual de plantão:</strong> {{ perfil_medico.get_availability_display }}
-                    | <strong>CRM:</strong> {{ perfil_medico.crm_number }}/{{ perfil_medico.crm_uf }}
+            <div class="review-card">
+                {% if perfil_medico %}
+                    <div class="baseline-card" style="margin-bottom:18px;">
+                        <span class="baseline-icon">✓</span>
+                        <div>
+                            <strong>Plantão médico — {{ perfil_medico.get_availability_display }}</strong>
+                            <p>CRM {{ perfil_medico.crm_number }}/{{ perfil_medico.crm_uf }} · Certificado ICP-Brasil {% if perfil_medico.icp_brasil_active %}Ativo{% else %}Inativo{% endif %}</p>
+                        </div>
+                        <span class="read-only-badge">{{ perfil_medico.get_homologation_status_display }}</span>
+                    </div>
+                {% endif %}
+                <div class="card-grid" role="navigation" aria-label="Ações médicas">
+                    <a class="feature-card" href="{% url 'care:queue_dashboard' %}">
+                        <span class="feature-card-tag">PAINEL CLÍNICO</span>
+                        <h3>Fila clínica e revisão</h3>
+                        <p>Atenda chamados de chat síncrono e valide prescrições ordenados por prioridade Manchester.</p>
+                    </a>
+                    <a class="feature-card" href="{% url 'professionals:availability' %}">
+                        <span class="feature-card-tag">PLANTÃO</span>
+                        <h3>Disponibilidade e turnos</h3>
+                        <p>Altere status Online/Pausa/Offline, atualize telefone operacional e veja histórico de turnos.</p>
+                    </a>
+                    <a class="feature-card" href="{% url 'notifications:center' %}">
+                        <span class="feature-card-tag">ALERTAS</span>
+                        <h3>Central de notificações</h3>
+                        <p>Consulte avisos clínicos e ajuste suas preferências de canais.</p>
+                    </a>
                 </div>
-            {% endif %}
-            <div class="card-grid" role="navigation" aria-label="Ações médicas">
-                <a class="feature-card" href="{% url 'care:queue_dashboard' %}">
-                    <span class="feature-card-tag">PAINEL CLÍNICO</span>
-                    <h3>Fila clínica e revisão</h3>
-                    <p>Atenda chamados de chat síncrono e valide prescrições ordenados por prioridade Manchester.</p>
-                </a>
-                <a class="feature-card" href="{% url 'professionals:availability' %}">
-                    <span class="feature-card-tag">PLANTÃO</span>
-                    <h3>Disponibilidade e turnos</h3>
-                    <p>Altere status Online/Pausa/Offline, atualize telefone operacional e veja histórico de turnos.</p>
-                </a>
-                <a class="feature-card" href="{% url 'notifications:center' %}">
-                    <span class="feature-card-tag">ALERTAS</span>
-                    <h3>Central de notificações</h3>
-                    <p>Consulte avisos clínicos e ajuste suas preferências de canais.</p>
-                </a>
-            </div>
-        {% else %}
-            <div class="card-grid">
-                <a class="feature-card" href="/admin/">
-                    <span class="feature-card-tag">ADMINISTRAÇÃO</span>
-                    <h3>Painel administrativo</h3>
-                    <p>Acesse auditoria, monitoramento operacional, médicos e contas administrativas.</p>
-                </a>
             </div>
         {% endif %}
-    </section>
-</main>
+    </div>
+</div>
 {% endblock %}

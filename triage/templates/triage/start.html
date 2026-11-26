@@ -1,57 +1,242 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Nova triagem — MEDIX.AI{% endblock %}
+{% block nav_triage %}active{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            <a class="button-secondary" href="{% url 'triage:list' %}">Voltar</a>
-        </nav>
-    </header>
+{% block header_icon %}
+<span class="header-brand-mark">
+    <svg class="icon" width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+</span>
+{% endblock %}
+{% block header_title %}Nova triagem{% endblock %}
+{% block header_badge %}{% endblock %}
+{% block header_subtitle %}Triagem médica inteligente{% endblock %}
+{% block header_right %}
+<a class="cancel-intake" href="{% url 'triage:list' %}">Cancelar</a>
+{% endblock %}
 
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">CONFIRMAÇÃO DE IDENTIDADE E ANAMNESE</p>
-        <h1>Iniciar triagem</h1>
-
-        <div class="alert-box" role="region" aria-label="Dados do paciente selecionado">
-            <p><strong>Paciente:</strong> {{ sujeito.full_name }} · <strong>Idade:</strong> {{ sujeito.age_years }} anos · <strong>Vínculo:</strong> {{ sujeito.relationship_label }}</p>
-            <p style="margin-bottom:0;"><strong>Alergias registradas:</strong> {% if sujeito.clinical_profile.has_allergy %}{{ sujeito.clinical_profile.allergy_description }}{% else %}Nenhuma informada{% endif %}</p>
+{% block app_content %}
+<div class="intake-scroll">
+    <div class="intake-page">
+        <div class="intake-title">
+            <span>TRIAGEM INTELIGENTE</span>
+            <h1>Vamos cuidar de você</h1>
+            <p>Responda algumas perguntas para receber uma orientação inicial personalizada.</p>
         </div>
 
-        <form method="post" novalidate>
+        <div class="triage-progress" aria-label="Etapa 1 de 4">
+            <div class="progress-step active">
+                <span class="progress-number">1</span>
+                <span class="progress-label">Relato dos sintomas</span>
+            </div>
+            <div class="progress-step">
+                <span class="progress-number">2</span>
+                <span class="progress-label">Análise da IA</span>
+            </div>
+            <div class="progress-step">
+                <span class="progress-number">3</span>
+                <span class="progress-label">Classificação</span>
+            </div>
+            <div class="progress-step">
+                <span class="progress-number">4</span>
+                <span class="progress-label">Orientações</span>
+            </div>
+        </div>
+
+        <form class="intake-card" method="post" novalidate id="triage-intake-form">
             {% csrf_token %}
-            {{ form.non_field_errors }}
             {{ form.dependent_id }}
 
-            <div class="field-group field-group-checkbox">
+            <div class="guide-row">
+                <div class="robot-guide" aria-hidden="true">
+                    <span class="robot-antenna"></span>
+                    <div class="robot-head">
+                        <i class="robot-eye left"></i>
+                        <i class="robot-eye right"></i>
+                        <span class="robot-smile"></span>
+                    </div>
+                    <span class="robot-body">
+                        <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+                    </span>
+                </div>
+                <div class="guide-bubble">
+                    <strong>Olá, {{ sujeito.full_name|truncatewords:2 }}!</strong>
+                    <p>Conte para mim o que está sentindo para que eu possa te ajudar da melhor forma.</p>
+                </div>
+            </div>
+
+            {{ form.non_field_errors }}
+
+            <div class="anamnese-context">
+                <div class="patient-field">
+                    <span>Paciente desta triagem</span>
+                    <div class="patient-summary-box">
+                        {{ sujeito.full_name }} — {{ sujeito.relationship_label }} ({{ sujeito.age_years }} anos)
+                    </div>
+                </div>
+                <div class="baseline-card">
+                    <span class="baseline-icon">
+                        <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                    </span>
+                    <div>
+                        <strong>Dados clínicos basais</strong>
+                        <p>
+                            Alergias: {% if sujeito.clinical_profile.has_allergy %}{{ sujeito.clinical_profile.allergy_description }}{% else %}Nenhuma registrada{% endif %}
+                            · Tipo: {{ sujeito.clinical_profile.blood_type }}
+                        </p>
+                    </div>
+                    <span class="read-only-badge">Somente leitura</span>
+                </div>
+            </div>
+
+            <div class="field-group field-group-checkbox" style="margin-top:0; margin-bottom:18px;">
                 {{ form.identity_confirmed }}
                 <label for="{{ form.identity_confirmed.id_for_label }}">{{ form.identity_confirmed.label }}</label>
             </div>
             {{ form.identity_confirmed.errors }}
 
-            <div class="field-group">
-                <label for="{{ form.symptoms_description.id_for_label }}">{{ form.symptoms_description.label }}</label>
-                {{ form.symptoms_description }}
+            <div class="symptom-field">
+                <h2>Relato inicial de sintomas e queixas</h2>
+                <p>Descreva com suas palavras o que está sentindo ou use o microfone.</p>
+                <div class="textarea-shell {% if form.symptoms_description.errors %}has-error{% endif %}">
+                    {{ form.symptoms_description }}
+                    <span id="symptom-char-count">0/2000</span>
+                </div>
                 {{ form.symptoms_description.errors }}
             </div>
 
-            <div class="audit-filter-grid">
-                <div class="field-group">
-                    <label for="{{ form.symptom_onset.id_for_label }}">{{ form.symptom_onset.label }}</label>
+            <div class="voice-divider"><span>Ou fale com a IA</span></div>
+            <button type="button" class="microphone-button" id="intake-mic-btn">
+                <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="9" y="3" width="6" height="12" rx="3"></rect>
+                    <path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"></path>
+                </svg>
+                <span id="intake-mic-label">Usar microfone</span>
+            </button>
+
+            <fieldset class="duration-field">
+                <legend>
+                    <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                    Há quanto tempo começou?
+                </legend>
+                <div class="duration-grid" id="duration-chips">
+                    <button type="button" data-duration="Hoje">Hoje</button>
+                    <button type="button" data-duration="Há 1 a 3 dias">Há 1 a 3 dias</button>
+                    <button type="button" data-duration="Há mais de 3 dias">Há mais de 3 dias</button>
+                    <button type="button" data-duration="Há várias semanas">Há várias semanas</button>
+                </div>
+                <div class="field-group" style="margin-top:10px;">
                     {{ form.symptom_onset }}
                     {{ form.symptom_onset.errors }}
                 </div>
-                <div class="field-group">
-                    <label for="{{ form.pain_intensity.id_for_label }}">{{ form.pain_intensity.label }}</label>
-                    {{ form.pain_intensity }}
-                    {{ form.pain_intensity.errors }}
-                </div>
-            </div>
+            </fieldset>
 
-            <button class="button-primary" type="submit">Avançar na triagem</button>
+            <fieldset class="pain-field">
+                <legend>Qual é a intensidade da dor ou desconforto?</legend>
+                <p>0 significa sem dor e 10, a pior dor possível.</p>
+                <div class="pain-scale" id="pain-scale-buttons" role="group" aria-label="Escala de dor de 0 a 10">
+                    {% for n in "0123456789"|make_list %}
+                        <button type="button" data-pain="{{ n }}">{{ n }}</button>
+                    {% endfor %}
+                    <button type="button" data-pain="10">10</button>
+                </div>
+                <div class="pain-scale-labels">
+                    <span>Sem dor</span>
+                    <strong id="pain-level-readout">{{ form.pain_intensity.value|default:"3" }}/10</strong>
+                    <span>Dor intensa</span>
+                </div>
+                <div style="display:none;">{{ form.pain_intensity }}</div>
+                {{ form.pain_intensity.errors }}
+            </fieldset>
+
+            <button class="continue-button" type="submit">
+                Analisar anamnese
+                <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 18 6-6-6-6"></path><path d="M5 12h10"></path></svg>
+            </button>
         </form>
-    </section>
-</main>
+
+        <div class="intake-security">
+            <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"></path></svg>
+            <span>Seus dados são desidentificados antes da análise por IA (LGPD / ADR 0003).</span>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const textarea = document.getElementById('{{ form.symptoms_description.id_for_label }}');
+    const counter = document.getElementById('symptom-char-count');
+    if (textarea && counter) {
+        const updateCount = () => { counter.textContent = `${textarea.value.length}/2000`; };
+        textarea.addEventListener('input', updateCount);
+        updateCount();
+    }
+
+    const onsetInput = document.getElementById('{{ form.symptom_onset.id_for_label }}');
+    const durationButtons = document.querySelectorAll('#duration-chips button');
+    if (onsetInput && durationButtons.length) {
+        const syncChips = () => {
+            durationButtons.forEach(b => b.classList.toggle('selected', b.dataset.duration === onsetInput.value.trim()));
+        };
+        durationButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                onsetInput.value = btn.dataset.duration;
+                syncChips();
+            });
+        });
+        onsetInput.addEventListener('input', syncChips);
+        syncChips();
+    }
+
+    const painInput = document.getElementById('{{ form.pain_intensity.id_for_label }}');
+    const painButtons = document.querySelectorAll('#pain-scale-buttons button');
+    const painReadout = document.getElementById('pain-level-readout');
+    if (painInput && painButtons.length) {
+        const syncPain = (val) => {
+            painInput.value = val;
+            if (painReadout) painReadout.textContent = `${val}/10`;
+            painButtons.forEach(b => b.classList.toggle('selected', b.dataset.pain === String(val)));
+        };
+        painButtons.forEach(btn => {
+            btn.addEventListener('click', () => syncPain(btn.dataset.pain));
+        });
+        syncPain(painInput.value || '3');
+    }
+
+    const micBtn = document.getElementById('intake-mic-btn');
+    const micLabel = document.getElementById('intake-mic-label');
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (micBtn && textarea) {
+        if (!SpeechRec) {
+            micLabel.textContent = 'Microfone indisponível neste navegador';
+            micBtn.disabled = true;
+        } else {
+            let rec = null;
+            let active = false;
+            micBtn.addEventListener('click', () => {
+                if (active && rec) { rec.stop(); return; }
+                rec = new SpeechRec();
+                rec.lang = 'pt-BR';
+                rec.interimResults = false;
+                rec.onstart = () => {
+                    active = true;
+                    micBtn.classList.add('recording');
+                    micLabel.textContent = 'Ouvindo... toque para parar';
+                };
+                rec.onresult = (ev) => {
+                    const transcript = ev.results[0][0].transcript;
+                    textarea.value = textarea.value ? `${textarea.value} ${transcript}` : transcript;
+                    textarea.dispatchEvent(new Event('input'));
+                };
+                rec.onend = () => {
+                    active = false;
+                    micBtn.classList.remove('recording');
+                    micLabel.textContent = 'Usar microfone';
+                };
+                rec.start();
+            });
+        }
+    }
+})();
+</script>
 {% endblock %}

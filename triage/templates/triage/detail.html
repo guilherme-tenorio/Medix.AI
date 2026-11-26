@@ -1,70 +1,198 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Triagem {{ sessao.pk }} — MEDIX.AI{% endblock %}
+{% block nav_triage %}active{% endblock %}
+{% block header_title %}Triagem com MEDIX.AI{% endblock %}
+{% block header_subtitle %}Assistente virtual de saúde{% endblock %}
+{% block header_right %}
+<span class="session-meta">
+    <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+    <span>Iniciada às {{ sessao.created_at|date:"H:i" }}</span>
+</span>
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            <a class="button-secondary" href="{% url 'triage:list' %}">Minhas triagens</a>
-            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Portal</a>
-        </nav>
-    </header>
+{% block app_content %}
+<div class="chat-scroll">
+    <div class="conversation">
+        <div class="date-divider"><span>Hoje</span></div>
 
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">PROTOCOLO DE MANCHESTER</p>
-        <h1>Triagem #{{ sessao.pk }}</h1>
-
-        <div class="panel-surface">
-            <p><strong>Relato:</strong> {{ sessao.symptoms_description }}</p>
-            <p><strong>Início/duração:</strong> {{ sessao.symptom_onset }} | <strong>Intensidade:</strong> {{ sessao.pain_intensity }}/10</p>
+        <div class="privacy-banner">
+            <svg class="icon" width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></svg>
+            <p>Esta conversa é confidencial e protegida. Suas informações são usadas apenas para orientar sua triagem.</p>
         </div>
 
-        {% if sessao.is_completed %}
-            <div class="alert-box {% if sessao.risk_color == 'red' %}alert-box-danger{% endif %}" role="status">
-                <p>
-                    <strong>Classificação de risco:</strong>
-                    <span class="badge badge-{{ sessao.risk_color }}">{{ sessao.get_risk_color_display }}</span>
-                </p>
-                <p><strong>Encaminhamento:</strong> {{ sessao.get_routing_destination_display }}</p>
-                {% if sessao.ai_summary %}
-                    <p><strong>Resumo clínico (IA):</strong> {{ sessao.ai_summary }}</p>
-                {% endif %}
-                {% if sessao.ai_guidance_text and sessao.routing_destination == 'ai_guidance' %}
-                    <p><strong>Orientação:</strong> {{ sessao.ai_guidance_text }}</p>
-                {% endif %}
-                {% if sessao.suggested_medication %}
-                    <p><strong>Sugestão para validação médica:</strong> {{ sessao.suggested_medication }}</p>
-                {% endif %}
+        <div class="message-row assistant">
+            <span class="assistant-avatar">
+                <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+            </span>
+            <div class="message-stack">
+                <span class="sender-name">MEDIX.AI</span>
+                <div class="message-bubble">
+                    <p>Olá! Confirmei sua identificação e consultei seus dados clínicos basais. Recebi seu relato inicial de sintomas.</p>
+                </div>
+                <span class="message-time">{{ sessao.created_at|date:"H:i" }}</span>
             </div>
+        </div>
 
-            <div class="portal-actions">
-                {% if emergency_dispatch %}
-                    <a class="button-danger" href="{% url 'triage:emergency' dispatch_id=emergency_dispatch.pk %}">Abrir alerta de emergência</a>
-                {% endif %}
-                {% if chat_session %}
-                    <a class="button-primary button-inline" href="{% url 'care:chat_room' session_id=chat_session.pk %}">Entrar no chat médico</a>
-                {% elif sessao.routing_destination == 'synchronous_chat' %}
-                    <span class="badge badge-yellow">Aguardando um médico aceitar seu chamado na fila...</span>
-                {% endif %}
-                {% if digital_prescription %}
-                    <a class="button-primary button-inline" href="{% url 'prescriptions:detail' prescription_id=digital_prescription.pk %}">Ver receita digital</a>
-                {% elif sessao.routing_destination == 'prescription_review' %}
-                    <span class="badge badge-green">Na fila de revisão médica de prescrição</span>
-                {% endif %}
-                <a class="button-secondary" href="{% url 'triage:start' %}">Iniciar nova triagem</a>
+        <div class="message-row user">
+            <div class="message-stack">
+                <div class="message-bubble">
+                    <p>{{ sessao.symptoms_description }}
+Início/duração: {{ sessao.symptom_onset }}. Intensidade da dor: {{ sessao.pain_intensity }}/10.</p>
+                </div>
+                <span class="message-time">{{ sessao.created_at|date:"H:i" }}</span>
             </div>
-            <p class="intro">Esta triagem está concluída e é imutável.</p>
+        </div>
+
+        {% if perguntas %}
+        <div class="message-row assistant">
+            <span class="assistant-avatar">
+                <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+            </span>
+            <div class="message-stack">
+                <span class="sender-name">MEDIX.AI</span>
+                <div class="message-bubble">
+                    <p>Para completar sua anamnese, responda às perguntas abaixo:{% for p in perguntas %}
+
+{{ forloop.counter }}. {{ p }}{% endfor %}</p>
+                </div>
+                <span class="message-time">{{ sessao.created_at|date:"H:i" }}</span>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if sessao.is_completed %}
+            {% if sessao.answers.responses %}
+            <div class="message-row user">
+                <div class="message-stack">
+                    <div class="message-bubble">
+                        <p>{% for k, v in sessao.answers.responses.items %}{{ v }}{% if not forloop.last %}
+{% endif %}{% endfor %}</p>
+                    </div>
+                    <span class="message-time">{{ sessao.completed_at|date:"H:i" }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="message-row assistant">
+                <span class="assistant-avatar">
+                    <svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+                </span>
+                <div class="message-stack assessment-stack">
+                    <span class="sender-name">MEDIX.AI</span>
+                    <div class="message-bubble assessment-intro">
+                        <p>Obrigada pelas informações. Finalizei a análise inicial dos seus sintomas:</p>
+                    </div>
+
+                    <div class="assessment {% if sessao.risk_color == 'white' %}risk-1{% elif sessao.risk_color == 'green' %}risk-2{% elif sessao.risk_color == 'yellow' %}risk-3{% elif sessao.risk_color == 'orange' %}risk-4{% else %}risk-5{% endif %}">
+                        <div class="assessment-header">
+                            <span class="status-icon">
+                                <svg class="icon" width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6"></path></svg>
+                            </span>
+                            <div>
+                                <span class="eyebrow">TRIAGEM CONCLUÍDA</span>
+                                <h2>
+                                    {% if sessao.risk_color == 'white' %}Não urgente
+                                    {% elif sessao.risk_color == 'green' %}Pouco urgente
+                                    {% elif sessao.risk_color == 'yellow' %}Urgente
+                                    {% elif sessao.risk_color == 'orange' %}Muito urgente
+                                    {% else %}Emergência{% endif %}
+                                </h2>
+                            </div>
+                            <span class="risk-badge">
+                                <i></i>
+                                {% if sessao.risk_color == 'white' %}1 · PULSEIRA BRANCA
+                                {% elif sessao.risk_color == 'green' %}2 · PULSEIRA VERDE
+                                {% elif sessao.risk_color == 'yellow' %}3 · PULSEIRA AMARELA
+                                {% elif sessao.risk_color == 'orange' %}4 · PULSEIRA LARANJA
+                                {% else %}5 · PULSEIRA VERMELHA{% endif %}
+                            </span>
+                        </div>
+
+                        <div class="result-id">
+                            <span>ID DA TRIAGEM</span>
+                            <code>{{ sessao.pk }}</code>
+                        </div>
+
+                        <div class="result-grid">
+                            <section class="result-section report-section">
+                                <span class="result-label">RELATÓRIO CONSOLIDADO</span>
+                                <p>{{ sessao.ai_summary|default:sessao.symptoms_description }}</p>
+                            </section>
+
+                            <section class="result-section">
+                                <span class="result-label">SINAIS DE ALERTA (RED FLAGS)</span>
+                                {% if sessao.red_flags_detected %}
+                                    <ul class="red-flag-list">
+                                        {% for flag in sessao.red_flags_detected %}
+                                            <li>{{ flag }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="no-red-flags">Nenhum sinal de alerta identificado</p>
+                                {% endif %}
+                            </section>
+
+                            <section class="result-section">
+                                <span class="result-label">FLUXO DE ENCAMINHAMENTO</span>
+                                <div class="referral-value">
+                                    <strong>
+                                        {% if sessao.routing_destination == 'ai_guidance' %}1
+                                        {% elif sessao.routing_destination == 'prescription_review' %}2
+                                        {% elif sessao.routing_destination == 'synchronous_chat' %}3
+                                        {% else %}4{% endif %}
+                                    </strong>
+                                    <p>{{ sessao.get_routing_destination_display }}</p>
+                                </div>
+                            </section>
+                        </div>
+
+                        <div class="recommendations">
+                            <h3>Cuidados e próximos passos</h3>
+                            <ul>
+                                {% if sessao.ai_guidance_text %}
+                                    <li>
+                                        <span>✓</span>
+                                        <p>{{ sessao.ai_guidance_text }}</p>
+                                    </li>
+                                {% endif %}
+                                {% if sessao.suggested_medication %}
+                                    <li>
+                                        <span>✓</span>
+                                        <p>Sugestão sujeita à validação médica: <strong>{{ sessao.suggested_medication }}</strong>.</p>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+
+                        <div class="alert">
+                            <p><strong>Procure atendimento presencial imediatamente</strong> se surgirem falta de ar, dor no peito, desmaio, febre alta persistente ou piora importante.</p>
+                        </div>
+                    </div>
+
+                    <div class="portal-actions" style="margin-top:14px;">
+                        {% if emergency_dispatch %}
+                            <a class="button-danger" href="{% url 'triage:emergency' dispatch_id=emergency_dispatch.pk %}">Abrir alerta de emergência</a>
+                        {% endif %}
+                        {% if chat_session %}
+                            <a class="continue-button" style="width:auto; padding:0 22px; height:44px; margin-top:0;" href="{% url 'care:chat_room' session_id=chat_session.pk %}">Entrar no chat médico</a>
+                        {% elif sessao.routing_destination == 'synchronous_chat' %}
+                            <span class="badge badge-yellow">Aguardando um médico aceitar seu chamado na fila...</span>
+                        {% endif %}
+                        {% if digital_prescription %}
+                            <a class="continue-button" style="width:auto; padding:0 22px; height:44px; margin-top:0;" href="{% url 'prescriptions:detail' prescription_id=digital_prescription.pk %}">Ver receita digital</a>
+                        {% elif sessao.routing_destination == 'prescription_review' %}
+                            <span class="badge badge-green">Na fila de revisão médica de prescrição</span>
+                        {% endif %}
+                        <a class="cancel-intake" href="{% url 'triage:start' %}">Nova triagem</a>
+                    </div>
+                    <span class="message-time">{{ sessao.completed_at|date:"H:i" }} · Triagem imutável</span>
+                </div>
+            </div>
         {% else %}
-            <h2>Perguntas complementares (IA)</h2>
-            <ol class="item-list">
-                {% for pergunta in perguntas %}
-                    <li class="item-row">{{ pergunta }}</li>
-                {% endfor %}
-            </ol>
-            <form method="post" novalidate>
+            <form method="post" novalidate class="intake-card" style="margin-top:14px;">
                 {% csrf_token %}
+                <h2 style="margin-top:0;">Suas respostas complementares</h2>
                 {{ form.non_field_errors }}
                 {% for field in form %}
                     <div class="field-group">
@@ -73,9 +201,9 @@
                         {{ field.errors }}
                     </div>
                 {% endfor %}
-                <button class="button-primary" type="submit">Concluir triagem e classificar risco</button>
+                <button class="continue-button" type="submit">Concluir triagem e classificar risco</button>
             </form>
         {% endif %}
-    </section>
-</main>
+    </div>
+</div>
 {% endblock %}

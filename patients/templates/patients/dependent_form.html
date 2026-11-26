@@ -1,40 +1,51 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}{% if modo_edicao %}Editar{% else %}Cadastrar{% endif %} Dependente — MEDIX.AI{% endblock %}
+{% block nav_dependents %}active{% endblock %}
+{% block header_title %}{% if modo_edicao %}Editar dependente{% else %}Cadastrar dependente{% endif %}{% endblock %}
+{% block header_subtitle %}Dados cadastrais e perfil clínico do dependente{% endblock %}
+{% block header_right %}
+<a class="cancel-intake" href="{% url 'patients:dependents_list' %}">Cancelar</a>
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">DEPENDENTE</p>
-        <h1>{% if modo_edicao %}Editar dependente{% else %}Cadastrar dependente{% endif %}</h1>
-        <p>
-            Responsável vinculado automaticamente:
-            <strong>{{ responsavel.user.get_full_name }}</strong> |
-            CPF {{ responsavel.user.cpf }} |
-            Celular {{ responsavel.phone }} |
-            E-mail {{ responsavel.user.email }}
-        </p>
-        {% if modo_edicao %}
-            <p>CPF do dependente (imutável): <strong>{{ dependente.cpf }}</strong></p>
-        {% endif %}
-
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div role="alert">{{ form.non_field_errors }}</div>
-            {% endif %}
-            {% for field in form %}
-                <div class="field-group">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {% if field.errors %}
-                        <div role="alert">{{ field.errors }}</div>
-                    {% endif %}
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        <div class="review-card">
+            <div class="baseline-card" style="margin-bottom:20px;">
+                <span class="baseline-icon">✓</span>
+                <div>
+                    <strong>Responsável vinculado automaticamente</strong>
+                    <p>{{ responsavel.user.get_full_name|default:responsavel.user.email }} · CPF {{ responsavel.user.cpf }} · {{ responsavel.phone }}</p>
                 </div>
-            {% endfor %}
-            <button class="button-primary" type="submit">Salvar dependente</button>
-            <a class="button-secondary" href="{% url 'patients:dependents_list' %}">Cancelar</a>
-        </form>
-    </section>
-</main>
+                {% if modo_edicao %}
+                    <span class="read-only-badge">CPF {{ dependente.cpf }} (imutável)</span>
+                {% endif %}
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="audit-filter-grid">
+                    {% for field in form %}
+                        <div class="field-group {% if field.field.widget.input_type == 'checkbox' %}field-group-checkbox{% endif %}">
+                            {% if field.field.widget.input_type == 'checkbox' %}
+                                {{ field }}
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% else %}
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                            {% endif %}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="portal-actions" style="margin-top:20px;">
+                    <button class="continue-button" style="width:auto; padding:0 28px; height:46px; margin:0;" type="submit">Salvar dependente</button>
+                    <a class="cancel-intake" href="{% url 'patients:dependents_list' %}">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

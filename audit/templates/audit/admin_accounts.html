@@ -1,22 +1,17 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Contas Administrativas — MEDIX.AI{% endblock %}
+{% block header_title %}Contas administrativas{% endblock %}
+{% block header_subtitle %}Criação e gestão de administradores ativos{% endblock %}
+{% block header_right %}
+<a class="cancel-intake" href="/admin/">Painel Admin</a>
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            <a class="button-secondary" href="{% url 'audit:monitoring' %}">Monitoramento</a>
-            <a class="button-secondary" href="/admin/">Admin</a>
-        </nav>
-    </header>
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">GESTÃO ADMINISTRATIVA</p>
-        <h1>Administradores</h1>
-
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
         <div class="split-layout">
-            <form method="post" novalidate class="panel-surface">
+            <form method="post" novalidate class="review-card">
                 {% csrf_token %}
                 <h2 style="margin-top:0;">Novo administrador</h2>
                 {{ form.non_field_errors }}
@@ -27,10 +22,10 @@
                         {{ field.errors }}
                     </div>
                 {% endfor %}
-                <button class="button-primary" type="submit">Criar conta administrativa</button>
+                <button class="continue-button" type="submit">Criar conta administrativa</button>
             </form>
 
-            <div class="panel-surface">
+            <div class="review-card">
                 <h2 style="margin-top:0;">Contas cadastradas</h2>
                 <ul class="item-list">
                     {% for adm in admins %}
@@ -55,6 +50,6 @@
                 </ul>
             </div>
         </div>
-    </section>
-</main>
+    </div>
+</div>
 {% endblock %}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -170,7 +171,7 @@ class GeminiLlmAdapter(BaseLlmAdapter):
                     break
             except urllib.error.HTTPError as erro:
                 ultimo_erro = erro
-                if erro.code in {404, 503}:
+                if erro.code in {404, 429, 503}:
                     continue
                 raise LlmIntegrationUnavailable('Falha ao consultar a API do Google Gemini.') from erro
             except (urllib.error.URLError, TimeoutError, ValueError) as erro:
@@ -293,10 +294,11 @@ class HttpsRestLlmAdapter(BaseLlmAdapter):
 def get_llm_adapter() -> BaseLlmAdapter:
     backend_path = getattr(settings, 'MEDIX_LLM_BACKEND', '')
     if not backend_path:
+        em_teste = 'test' in sys.argv
         api_key = getattr(settings, 'GEMINI_API_KEY', '') or os.environ.get('GEMINI_API_KEY', '')
         backend_path = (
             'core.integrations.llm.GeminiLlmAdapter'
-            if api_key
+            if (api_key and not em_teste)
             else 'core.integrations.llm.SandboxLlmAdapter'
         )
     adapter_cls = import_string(backend_path)

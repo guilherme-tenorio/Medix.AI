@@ -1,39 +1,46 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Meu Perfil Clínico — MEDIX.AI{% endblock %}
+{% block nav_profile %}active{% endblock %}
+{% block header_title %}Meu perfil clínico{% endblock %}
+{% block header_subtitle %}Dados cadastrais, alergias e informações de saúde{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">PERFIL DO TITULAR</p>
-        <h1>Dados cadastrais e perfil clínico</h1>
-        <p>CPF: {{ paciente.user.cpf }} | E-mail: {{ paciente.user.email }}</p>
-
-        {% if messages %}
-            <div role="status" aria-live="polite">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div role="alert">{{ form.non_field_errors }}</div>
-            {% endif %}
-            {% for field in form %}
-                <div class="field-group">
-                    {{ field.label_tag }}
-                    {{ field }}
-                    {% if field.errors %}
-                        <div role="alert">{{ field.errors }}</div>
-                    {% endif %}
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        <div class="review-card">
+            <div class="baseline-card" style="margin-bottom:20px;">
+                <span class="baseline-icon">✓</span>
+                <div>
+                    <strong>Identificação do titular</strong>
+                    <p>CPF {{ paciente.user.cpf }} · E-mail {{ paciente.user.email }}</p>
                 </div>
-            {% endfor %}
-            <button class="button-primary" type="submit">Salvar alterações</button>
-            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Voltar ao portal</a>
-        </form>
-    </section>
-</main>
+                <span class="read-only-badge">Histórico versionado</span>
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="audit-filter-grid">
+                    {% for field in form %}
+                        <div class="field-group {% if field.field.widget.input_type == 'checkbox' %}field-group-checkbox{% endif %}">
+                            {% if field.field.widget.input_type == 'checkbox' %}
+                                {{ field }}
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% else %}
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                            {% endif %}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="portal-actions" style="margin-top:20px;">
+                    <button class="continue-button" style="width:auto; padding:0 28px; height:46px; margin:0;" type="submit">Salvar alterações</button>
+                    <a class="cancel-intake" href="{% url 'users:patient_portal' %}">Voltar ao início</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

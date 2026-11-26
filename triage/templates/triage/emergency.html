@@ -1,56 +1,88 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}EMERGÊNCIA — MEDIX.AI{% endblock %}
+{% block nav_triage %}active{% endblock %}
+{% block header_title %}Emergência e unidades próximas{% endblock %}
+{% block header_badge %}<span class="badge badge-red">VERMELHO</span>{% endblock %}
+{% block header_subtitle %}Alerta crítico, ficha resumida de socorro e geolocalização{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <section class="portal-card" role="alert" aria-live="assertive" style="border: 3px solid #dc2626;" data-tts-auto="true">
-        <p class="eyebrow" style="color: #dc2626; font-weight: 700;">CLASSIFICAÇÃO VERMELHA — ATENDIMENTO IMEDIATO</p>
-        <h1>Procure atendimento presencial urgente</h1>
-        <p data-tts-text="{{ dispatch.alert_message }}">{{ dispatch.alert_message }}</p>
-
-        <h2>Ficha resumida do paciente</h2>
-        <ul>
-            <li><strong>Nome:</strong> {{ dispatch.patient_summary.nome }}</li>
-            <li><strong>Idade:</strong> {{ dispatch.patient_summary.idade }} anos</li>
-            <li><strong>Tipo sanguíneo:</strong> {{ dispatch.patient_summary.tipo_sanguineo }}</li>
-            <li><strong>Alergias:</strong> {{ dispatch.patient_summary.alergias }}</li>
-            <li><strong>Comorbidades:</strong>
-                {% if dispatch.patient_summary.comorbidades %}
-                    {{ dispatch.patient_summary.comorbidades|join:", " }}
-                {% else %}
-                    Nenhuma informada
-                {% endif %}
-            </li>
-            {% if dispatch.patient_summary.red_flags %}
-                <li><strong>Sinais de alerta detectados:</strong> {{ dispatch.patient_summary.red_flags|join:", " }}</li>
-            {% endif %}
-        </ul>
-
-        <h2>Prontos-socorros e unidades próximas</h2>
-        <p>Se o GPS estiver desativado, o alerta acima continua válido. Você pode informar sua localização manualmente por bairro ou cidade:</p>
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            {% for field in form %}
-                <div class="field-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {{ field.errors }}
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        <section class="assessment risk-5" role="alert" aria-live="assertive" data-tts-auto="true" style="margin-bottom:20px;">
+            <div class="assessment-header">
+                <span class="status-icon">!</span>
+                <div>
+                    <span class="eyebrow">CLASSIFICAÇÃO VERMELHA — ATENDIMENTO IMEDIATO</span>
+                    <h2>Procure atendimento presencial urgente</h2>
                 </div>
-            {% endfor %}
-            <button class="button-primary" type="submit">Atualizar unidades próximas</button>
-        </form>
+                <span class="risk-badge"><i></i> 5 · PULSEIRA VERMELHA</span>
+            </div>
+            <div style="padding:18px;">
+                <p data-tts-text="{{ dispatch.alert_message }}" style="margin:0 0 14px; font-weight:600; color:#7f1d1d;">
+                    {{ dispatch.alert_message }}
+                </p>
+                <div class="result-grid" style="padding:0;">
+                    <section class="result-section">
+                        <span class="result-label">FICHA RESUMIDA DO PACIENTE</span>
+                        <p>
+                            <strong>{{ dispatch.patient_summary.nome }}</strong> ({{ dispatch.patient_summary.idade }} anos)<br>
+                            Tipo sanguíneo: <strong>{{ dispatch.patient_summary.tipo_sanguineo }}</strong><br>
+                            Alergias: <strong>{{ dispatch.patient_summary.alergias }}</strong><br>
+                            Comorbidades:
+                            {% if dispatch.patient_summary.comorbidades %}
+                                {{ dispatch.patient_summary.comorbidades|join:", " }}
+                            {% else %}
+                                Nenhuma informada
+                            {% endif %}
+                        </p>
+                    </section>
+                    <section class="result-section">
+                        <span class="result-label">SINAIS DE ALERTA DETECTADOS</span>
+                        {% if dispatch.patient_summary.red_flags %}
+                            <ul class="red-flag-list">
+                                {% for rf in dispatch.patient_summary.red_flags %}
+                                    <li>{{ rf }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>Reclassificação médica de emergência.</p>
+                        {% endif %}
+                    </section>
+                </div>
+            </div>
+        </section>
 
-        <ul>
-            {% for unidade in unidades %}
-                <li>
-                    <strong>{{ unidade.name }}</strong> — {{ unidade.address }} ({{ unidade.neighborhood }}, {{ unidade.city }})
-                    {% if unidade.distance_km is not None %} — {{ unidade.distance_km }} km{% endif %}
-                    | <a href="{{ unidade.external_route_url }}" target="_blank" rel="noopener noreferrer">Abrir rota externa</a>
-                </li>
-            {% endfor %}
-        </ul>
-    </section>
-</main>
+        <div class="review-card">
+            <h2 style="margin-top:0;">Prontos-socorros e unidades próximas</h2>
+            <p class="intro">Se o GPS estiver desativado, o alerta acima continua válido. Informe seu bairro ou cidade abaixo:</p>
+            <form method="post" novalidate style="margin-bottom:18px;">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="audit-filter-grid">
+                    {% for field in form %}
+                        <div class="field-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <button class="continue-button" style="width:auto; padding:0 24px; height:44px;" type="submit">Atualizar unidades próximas</button>
+            </form>
+
+            <ul class="item-list">
+                {% for unidade in unidades %}
+                    <li class="item-row">
+                        <div class="item-meta">
+                            <strong>{{ unidade.name }}</strong>
+                            <small>{{ unidade.address }} — {{ unidade.neighborhood }}, {{ unidade.city }}{% if unidade.distance_km is not None %} · {{ unidade.distance_km }} km{% endif %}</small>
+                        </div>
+                        <a class="continue-button" style="width:auto; height:38px; padding:0 16px; margin:0; font-size:12px;" href="{{ unidade.external_route_url }}" target="_blank" rel="noopener noreferrer">Abrir rota</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
 {% endblock %}

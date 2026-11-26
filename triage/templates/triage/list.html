@@ -1,48 +1,54 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Triagens — MEDIX.AI{% endblock %}
+{% block nav_triage %}active{% endblock %}
+{% block header_title %}Minhas triagens{% endblock %}
+{% block header_subtitle %}Histórico de triagens e encaminhamentos{% endblock %}
+{% block header_right %}
+<a class="continue-button" style="width:auto; height:38px; padding:0 16px; margin:0; font-size:12px;" href="{% url 'triage:start' %}">+ Nova triagem</a>
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Voltar ao portal</a>
-        </nav>
-    </header>
-
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">TRIAGEM ASSISTIDA</p>
-        <h1>Minhas triagens</h1>
-        <div class="portal-actions">
-            <a class="button-primary" href="{% url 'triage:start' %}">Nova triagem para mim</a>
-            {% for dep in dependentes %}
-                <a class="button-secondary" href="{% url 'triage:start' %}?dependent_id={{ dep.pk }}">
-                    Triagem para {{ dep.full_name }}
-                </a>
-            {% endfor %}
-        </div>
-
-        {% if triagens %}
-            <ul>
-                {% for item in triagens %}
-                    <li>
-                        <a href="{% url 'triage:detail' triage_id=item.pk %}">
-                            {{ item.created_at|date:"d/m/Y H:i" }} —
-                            {% if item.patient %}{{ item.patient.user.get_full_name|default:item.patient.user.email }}{% else %}{{ item.dependent.full_name }}{% endif %}
-                            —
-                            {% if item.is_completed %}
-                                {{ item.get_risk_color_display }} ({{ item.get_routing_destination_display }})
-                            {% else %}
-                                Em andamento
-                            {% endif %}
-                        </a>
-                    </li>
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        {% if dependentes %}
+        <div class="review-card">
+            <h2 style="margin-top:0;">Iniciar triagem para dependente</h2>
+            <div class="portal-actions">
+                {% for dep in dependentes %}
+                    <a class="button-secondary" href="{% url 'triage:start' %}?dependent_id={{ dep.pk }}">{{ dep.full_name }}</a>
                 {% endfor %}
-            </ul>
-        {% else %}
-            <p>Nenhuma triagem registrada até o momento.</p>
+            </div>
+        </div>
         {% endif %}
-    </section>
-</main>
+
+        <div class="review-card">
+            <h2 style="margin-top:0;">Triagens registradas</h2>
+            {% if triagens %}
+                <ul class="item-list">
+                    {% for item in triagens %}
+                        <li class="item-row">
+                            <div class="item-meta">
+                                <div>
+                                    {% if item.risk_color %}
+                                        <span class="badge badge-{{ item.risk_color }}">{{ item.get_risk_color_display }}</span>
+                                    {% else %}
+                                        <span class="badge badge-blue">Em andamento</span>
+                                    {% endif %}
+                                    <strong>
+                                        {% if item.patient %}{{ item.patient.user.get_full_name|default:item.patient.user.email }}{% else %}{{ item.dependent.full_name }}{% endif %}
+                                    </strong>
+                                </div>
+                                <small>{{ item.created_at|date:"d/m/Y H:i" }} · {{ item.symptoms_description|truncatechars:90 }}</small>
+                            </div>
+                            <a class="button-secondary" href="{% url 'triage:detail' triage_id=item.pk %}">Abrir triagem</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="intro">Nenhuma triagem registrada até o momento.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

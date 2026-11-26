@@ -1,31 +1,39 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Minhas Receitas — MEDIX.AI{% endblock %}
+{% block nav_prescriptions %}active{% endblock %}
+{% block header_title %}Receitas digitais{% endblock %}
+{% block header_subtitle %}Receitas assinadas com certificado ICP-Brasil{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Portal do paciente</a>
-        </nav>
-    </header>
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">RECEITAS DIGITAIS</p>
-        <h1>Minhas receitas</h1>
-        {% if receitas %}
-            <ul>
-                {% for rec in receitas %}
-                    <li>
-                        <a href="{% url 'prescriptions:detail' prescription_id=rec.pk %}">
-                            {{ rec.issued_at|date:"d/m/Y H:i" }} — {{ rec.medication_name }} ({{ rec.get_status_display }})
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Nenhuma receita emitida até o momento.</p>
-        {% endif %}
-    </section>
-</main>
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        <div class="review-card">
+            <h2 style="margin-top:0;">Minhas receitas emitidas</h2>
+            {% if receitas %}
+                <ul class="item-list">
+                    {% for rec in receitas %}
+                        <li class="item-row">
+                            <div class="item-meta">
+                                <div>
+                                    <strong>{{ rec.medication_name }}</strong>
+                                    <span class="badge {% if rec.status == 'active' %}badge-green{% elif rec.status == 'revoked' %}badge-red{% else %}badge-white{% endif %}">
+                                        {{ rec.get_status_display }}
+                                    </span>
+                                </div>
+                                <small>Emitida em {{ rec.issued_at|date:"d/m/Y H:i" }} · {{ rec.dosage_and_route }}</small>
+                            </div>
+                            <div class="portal-actions">
+                                <a class="button-secondary" href="{% url 'prescriptions:detail' prescription_id=rec.pk %}">Visualizar</a>
+                                <a class="continue-button" style="width:auto; height:36px; padding:0 14px; margin:0; font-size:12px;" href="{% url 'prescriptions:pdf' prescription_id=rec.pk %}">Baixar PDF</a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="intro">Nenhuma receita digital emitida até o momento.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

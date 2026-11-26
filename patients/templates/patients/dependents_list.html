@@ -1,43 +1,54 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Dependentes — MEDIX.AI{% endblock %}
+{% block nav_dependents %}active{% endblock %}
+{% block header_title %}Meus dependentes{% endblock %}
+{% block header_subtitle %}Gestão de dependentes sob sua responsabilidade legal{% endblock %}
+{% block header_right %}
+<a class="continue-button" style="width:auto; height:38px; padding:0 16px; margin:0; font-size:12px;" href="{% url 'patients:dependent_create' %}">+ Cadastrar dependente</a>
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">GESTÃO DE DEPENDENTES</p>
-        <h1>Meus dependentes</h1>
-        <p>Responsável: {{ responsavel.user.get_full_name }} (CPF {{ responsavel.user.cpf }})</p>
-
-        {% if messages %}
-            <div role="status" aria-live="polite">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        <div class="review-card">
+            <div class="baseline-card" style="margin-bottom:20px;">
+                <span class="baseline-icon">✓</span>
+                <div>
+                    <strong>Responsável legal vinculado</strong>
+                    <p>{{ responsavel.user.get_full_name|default:responsavel.user.email }} · CPF {{ responsavel.user.cpf }}</p>
+                </div>
+                <span class="read-only-badge">Titular</span>
             </div>
-        {% endif %}
 
-        <p><a class="button-primary" href="{% url 'patients:dependent_create' %}">Cadastrar dependente</a></p>
-
-        {% if dependentes %}
-            <ul>
-                {% for dependente in dependentes %}
-                    <li>
-                        <strong>{{ dependente.full_name }}</strong>
-                        ({{ dependente.get_legal_relationship_display }}) — CPF {{ dependente.cpf }}
-                        <a href="{% url 'patients:dependent_edit' dependente.pk %}">Editar</a>
-                        <form method="post" action="{% url 'patients:dependent_deactivate' dependente.pk %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button class="button-secondary" type="submit">Desativar</button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Nenhum dependente ativo cadastrado.</p>
-        {% endif %}
-
-        <p><a class="button-secondary" href="{% url 'users:patient_portal' %}">Voltar ao portal</a></p>
-    </section>
-</main>
+            <h2 style="margin-top:0;">Dependentes ativos</h2>
+            {% if dependentes %}
+                <ul class="item-list">
+                    {% for dependente in dependentes %}
+                        <li class="item-row">
+                            <div class="item-meta">
+                                <div>
+                                    <strong>{{ dependente.full_name }}</strong>
+                                    <span class="badge badge-blue">{{ dependente.get_legal_relationship_display }}</span>
+                                </div>
+                                <small>CPF {{ dependente.cpf }} · Nascimento {{ dependente.birth_date|date:"d/m/Y" }}</small>
+                            </div>
+                            <div class="portal-actions">
+                                <a class="continue-button" style="width:auto; height:36px; padding:0 14px; margin:0; font-size:12px;" href="{% url 'triage:start' %}?dependent_id={{ dependente.pk }}">Triagem</a>
+                                <a class="button-secondary" href="{% url 'patients:dependent_edit' dependente.pk %}">Editar</a>
+                                <form method="post" action="{% url 'patients:dependent_deactivate' dependente.pk %}">
+                                    {% csrf_token %}
+                                    <button class="button-secondary" type="submit">Desativar</button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="intro">Nenhum dependente ativo cadastrado até o momento.</p>
+                <a class="continue-button" style="width:auto; padding:0 22px; height:44px;" href="{% url 'patients:dependent_create' %}">Cadastrar primeiro dependente</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

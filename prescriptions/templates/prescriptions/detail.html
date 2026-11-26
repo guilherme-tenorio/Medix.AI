@@ -1,36 +1,70 @@
-{% extends 'users/base.html' %}
+{% extends 'users/app_shell.html' %}
 
 {% block title %}Receita Digital — MEDIX.AI{% endblock %}
+{% block nav_prescriptions %}active{% endblock %}
+{% block header_title %}Receita digital{% endblock %}
+{% block header_subtitle %}Documento médico assinado com ICP-Brasil{% endblock %}
+{% block header_right %}
+<a class="continue-button" style="width:auto; height:38px; padding:0 16px; margin:0; font-size:12px;" href="{% url 'prescriptions:pdf' prescription_id=receita.pk %}">Baixar PDF</a>
+{% endblock %}
 
-{% block body %}
-<main id="conteudo" class="portal-shell">
-    <header class="portal-header">
-        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
-        <nav class="portal-actions">
-            <a class="button-secondary" href="{% url 'prescriptions:pdf' prescription_id=receita.pk %}">Baixar PDF</a>
-            <a class="button-secondary" href="{% url 'prescriptions:public_verify' token=receita.verification_token %}">Página de verificação (QR)</a>
-        </nav>
-    </header>
-    <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">RECEITA DIGITAL ICP-BRASIL</p>
-        <h1>Receita #{{ receita.pk }}</h1>
-        <p><strong>Status:</strong> {{ receita.get_status_display }}</p>
-        <p><strong>Medicamento:</strong> {{ receita.medication_name }}</p>
-        <p><strong>Posologia e via:</strong> {{ receita.dosage_and_route }}</p>
-        <p><strong>Orientações:</strong> {{ receita.instructions|default:"Seguir orientação médica." }}</p>
-        <p><strong>Prescritor:</strong> {{ receita.prescriber.user.get_full_name|default:receita.prescriber.user.email }} — CRM {{ receita.prescriber.crm_number }}/{{ receita.prescriber.crm_uf }}</p>
-        <p><strong>Emissão:</strong> {{ receita.issued_at|date:"d/m/Y H:i" }} | <strong>Validade:</strong> {{ receita.valid_until|date:"d/m/Y H:i" }}</p>
-        <p><strong>Hash ICP-Brasil:</strong> <code>{{ receita.icp_signature_hash }}</code></p>
+{% block app_content %}
+<div class="review-scroll">
+    <div class="review-page">
+        <div class="review-card">
+            <div class="baseline-card" style="margin-bottom:18px;">
+                <span class="baseline-icon">✓</span>
+                <div>
+                    <strong>Receita #{{ receita.pk }}</strong>
+                    <p>Hash ICP-Brasil: <code>{{ receita.icp_signature_hash }}</code></p>
+                </div>
+                <span class="read-only-badge">{{ receita.get_status_display }}</span>
+            </div>
 
-        {% if eh_prescritor and receita.status == 'active' %}
-            <hr>
-            <h2>Revogar receita</h2>
-            <form method="post" action="{% url 'prescriptions:revoke' prescription_id=receita.pk %}">
-                {% csrf_token %}
-                {{ revoke_form.as_p }}
-                <button class="button-secondary" type="submit">Revogar receita</button>
-            </form>
-        {% endif %}
-    </section>
-</main>
+            <div class="audit-filter-grid">
+                <div class="result-section">
+                    <span class="result-label">MEDICAMENTO</span>
+                    <p><strong>{{ receita.medication_name }}</strong></p>
+                </div>
+                <div class="result-section">
+                    <span class="result-label">POSOLOGIA E VIA</span>
+                    <p>{{ receita.dosage_and_route }}</p>
+                </div>
+                <div class="result-section">
+                    <span class="result-label">MÉDICO PRESCRITOR</span>
+                    <p>{{ receita.prescriber.user.get_full_name|default:receita.prescriber.user.email }} — CRM {{ receita.prescriber.crm_number }}/{{ receita.prescriber.crm_uf }}</p>
+                </div>
+                <div class="result-section">
+                    <span class="result-label">EMISSÃO E VALIDADE</span>
+                    <p>{{ receita.issued_at|date:"d/m/Y H:i" }} até {{ receita.valid_until|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+
+            <div class="result-section" style="margin-top:12px;">
+                <span class="result-label">ORIENTAÇÕES AO PACIENTE</span>
+                <p>{{ receita.instructions|default:"Seguir orientação médica." }}</p>
+            </div>
+
+            <div class="portal-actions" style="margin-top:18px;">
+                <a class="continue-button" style="width:auto; padding:0 22px; height:44px; margin:0;" href="{% url 'prescriptions:pdf' prescription_id=receita.pk %}">Baixar PDF oficial (sem CPF)</a>
+                <a class="button-secondary" href="{% url 'prescriptions:public_verify' token=receita.verification_token %}">Abrir página de verificação (QR)</a>
+            </div>
+
+            {% if eh_prescritor and receita.status == 'active' %}
+                <hr style="margin:24px 0;">
+                <h2>Revogar receita</h2>
+                <form method="post" action="{% url 'prescriptions:revoke' prescription_id=receita.pk %}">
+                    {% csrf_token %}
+                    {% for field in revoke_form %}
+                        <div class="field-group">
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                    <button class="button-danger" style="margin-top:12px;" type="submit">Confirmar revogação</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}
