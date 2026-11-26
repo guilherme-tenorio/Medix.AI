@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views import View
 
-from .forms import AuditSearchForm
+from .forms import AdminAccountCreateForm, AuditSearchForm
 from .services import (
     AdminAccountService,
     AuditService,
@@ -87,7 +87,46 @@ class GestaoAdministradoresView(LoginRequiredMixin, View):
             admins = AdminAccountService.listar_administradores(request.user.pk)
         except PermissaoAuditoriaNegada:
             raise PermissionDenied from None
-        return render(request, self.template_name, {'admins': admins})
+        return render(
+            request,
+            self.template_name,
+            {'admins': admins, 'form': AdminAccountCreateForm()},
+        )
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        form = AdminAccountCreateForm(request.POST)
+        try:
+            admins = AdminAccountService.listar_administradores(request.user.pk)
+        except PermissaoAuditoriaNegada:
+            raise PermissionDenied from None
+
+        if form.is_valid():
+            try:
+                AdminAccountService.criar_administrador(
+                    request.user.pk,
+                    full_name=form.cleaned_data['full_name'],
+                    cpf=form.cleaned_data['cpf'],
+                    email=form.cleaned_data['email'],
+                    birth_date=form.cleaned_data['birth_date'],
+                    ip_address=request.META.get('REMOTE_ADDR'),
+                )
+            except PermissaoAuditoriaNegada:
+                raise PermissionDenied from None
+            except ValidationError as erro:
+                for msg in erro.messages:
+                    form.add_error(None, msg)
+            else:
+                messages.success(
+                    request,
+                    'Conta administrativa criada com sucesso. Senha provisória enviada ao e-mail corporativo.',
+                )
+                return redirect(reverse('audit:admin_accounts'))
+
+        return render(
+            request,
+            self.template_name,
+            {'admins': admins, 'form': form},
+        )
 
 
 class DesativarAdministradorView(LoginRequiredMixin, View):

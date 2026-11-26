@@ -15,51 +15,95 @@
     <section class="portal-card">
         <p class="eyebrow eyebrow-blue">PAINEL CLÍNICO</p>
         <h1>Filas de atendimento</h1>
+        <p class="intro">Ordenação automática por gravidade Manchester (Laranja &gt; Amarela &gt; Verde &gt; Branca) e tempo de espera. Dados clínicos completos são liberados após o aceite.</p>
 
         <form method="get" class="portal-actions">
-            <label for="id_risk_color">Filtrar por cor:</label>
-            <select id="id_risk_color" name="risk_color">
-                <option value="">Todas</option>
+            <label for="id_risk_color"><strong>Filtrar por cor:</strong></label>
+            <select id="id_risk_color" name="risk_color" class="button-secondary">
+                <option value="">Todas as cores</option>
                 <option value="orange" {% if cor_filtro == 'orange' %}selected{% endif %}>Laranja</option>
                 <option value="yellow" {% if cor_filtro == 'yellow' %}selected{% endif %}>Amarela</option>
                 <option value="green" {% if cor_filtro == 'green' %}selected{% endif %}>Verde</option>
                 <option value="white" {% if cor_filtro == 'white' %}selected{% endif %}>Branca</option>
             </select>
-            <button class="button-secondary" type="submit">Filtrar</button>
+            <button class="button-secondary" type="submit">Aplicar filtro</button>
         </form>
 
-        <h2>Fila de chat síncrono</h2>
-        {% if fila_chat %}
-            <ul>
-                {% for item in fila_chat %}
-                    <li>
-                        <strong>{{ item.risk_color_label }}</strong> — {{ item.abbreviated_name }}, {{ item.age_years }} anos ({{ item.gender }}) — Espera: {{ item.wait_minutes }} min — {{ item.status_label }}
-                        <form method="post" action="{% url 'care:accept_queue_item' queue_item_id=item.queue_item_id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button class="button-primary" type="submit">Aceitar chamado</button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Nenhum chamado aguardando na fila de chat síncrono.</p>
-        {% endif %}
+        <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+            <div class="panel-surface">
+                <h2>Fila de chat síncrono ({{ fila_chat|length }})</h2>
+                {% if fila_chat %}
+                    <ul class="item-list">
+                        {% for item in fila_chat %}
+                            <li class="item-row">
+                                <div class="item-meta">
+                                    <div>
+                                        <span class="badge badge-{{ item.risk_color }}">{{ item.risk_color_label }}</span>
+                                        <strong>{{ item.abbreviated_name }}</strong>
+                                    </div>
+                                    <small>{{ item.age_years }} anos · {{ item.gender }} · Espera: {{ item.wait_minutes }} min</small>
+                                </div>
+                                <form method="post" action="{% url 'care:accept_queue_item' queue_item_id=item.queue_item_id %}">
+                                    {% csrf_token %}
+                                    <button class="button-primary button-inline" type="submit">Aceitar chat</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="intro">Nenhum chamado aguardando na fila de chat síncrono.</p>
+                {% endif %}
+            </div>
 
-        <h2>Fila de revisão de prescrição</h2>
-        {% if fila_revisao %}
-            <ul>
-                {% for item in fila_revisao %}
-                    <li>
-                        <strong>{{ item.risk_color_label }}</strong> — {{ item.abbreviated_name }}, {{ item.age_years }} anos ({{ item.gender }}) — Espera: {{ item.wait_minutes }} min — {{ item.status_label }}
-                        <form method="post" action="{% url 'care:accept_queue_item' queue_item_id=item.queue_item_id %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button class="button-primary" type="submit">Aceitar revisão</button>
-                        </form>
+            <div class="panel-surface">
+                <h2>Fila de revisão de prescrição ({{ fila_revisao|length }})</h2>
+                {% if fila_revisao %}
+                    <ul class="item-list">
+                        {% for item in fila_revisao %}
+                            <li class="item-row">
+                                <div class="item-meta">
+                                    <div>
+                                        <span class="badge badge-{{ item.risk_color }}">{{ item.risk_color_label }}</span>
+                                        <strong>{{ item.abbreviated_name }}</strong>
+                                    </div>
+                                    <small>{{ item.age_years }} anos · {{ item.gender }} · Espera: {{ item.wait_minutes }} min</small>
+                                </div>
+                                <form method="post" action="{% url 'care:accept_queue_item' queue_item_id=item.queue_item_id %}">
+                                    {% csrf_token %}
+                                    <button class="button-primary button-inline" type="submit">Aceitar revisão</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="intro">Nenhum chamado aguardando revisão de prescrição.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if meus_atendimentos %}
+            <h2>Meus atendimentos recentes</h2>
+            <ul class="item-list">
+                {% for at in meus_atendimentos %}
+                    <li class="item-row">
+                        <div class="item-meta">
+                            <div>
+                                <span class="badge badge-{{ at.risk_color }}">{{ at.get_risk_color_display }}</span>
+                                <strong>{{ at.get_queue_type_display }}</strong> — {{ at.get_status_display }}
+                            </div>
+                            <small>Aceito em {{ at.accepted_at|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        <div class="portal-actions">
+                            {% if at.chat_session %}
+                                <a class="button-secondary" href="{% url 'care:chat_room' session_id=at.chat_session.pk %}">Abrir chat</a>
+                            {% endif %}
+                            {% if at.queue_type == 'prescription_review' and at.status != 'finished' %}
+                                <a class="button-primary button-inline" href="{% url 'prescriptions:review' triage_id=at.triage_session_id %}?queue_item_id={{ at.pk }}">Abrir revisão</a>
+                            {% endif %}
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
-        {% else %}
-            <p>Nenhum chamado aguardando na fila de revisão de prescrição.</p>
         {% endif %}
     </section>
 </main>

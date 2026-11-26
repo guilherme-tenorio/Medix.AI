@@ -40,3 +40,13 @@ class AuditSearchForm(forms.Form):
         if inicio and fim and inicio > fim:
             self.add_error('periodo_final', 'A data final deve ser igual ou posterior à data inicial.')
         return dados
+
+
+class AdminAccountCreateForm(forms.Form):
+    full_name = forms.CharField(label='Nome completo', min_length=3, max_length=120)
+    cpf = forms.CharField(label='CPF', max_length=14)
+    email = forms.EmailField(label='E-mail corporativo', max_length=254)
+    birth_date = forms.DateField(
+        label='Data de nascimento',
+        widget=forms.DateInput(attrs={'type': 'date'}),
+    )

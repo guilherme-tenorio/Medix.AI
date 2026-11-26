@@ -552,6 +552,13 @@ class TriageService:
                     sessao,
                     trigger_source=EmergencyDispatch.TriggerSource.TRIAGE,
                 )
+            elif sessao.routing_destination in {
+                TriageSession.RoutingDestination.SYNCHRONOUS_CHAT,
+                TriageSession.RoutingDestination.PRESCRIPTION_REVIEW,
+            }:
+                from care.services import QueueService
+
+                QueueService.enfileirar_triagem(sessao)
             return sessao, dispatch
 
     @classmethod
@@ -577,6 +584,17 @@ class TriageService:
         if dono_id != user_id and sessao.initiated_by_id != user_id:
             raise PermissaoTriagemNegada
         return sessao
+
+    @classmethod
+    def obter_contexto_detalhe(cls, user_id: int, triage_id: UUID) -> dict:
+        sessao = cls.obter_triagem(user_id, triage_id)
+        return {
+            'sessao': sessao,
+            'perguntas': (sessao.answers or {}).get('questions', []),
+            'chat_session': sessao.chat_sessions.order_by('-created_at').first(),
+            'emergency_dispatch': sessao.emergency_dispatches.order_by('-created_at').first(),
+            'digital_prescription': sessao.digital_prescriptions.order_by('-issued_at').first(),
+        }
 
     @classmethod
     def listar_triagens_usuario(cls, user_id: int) -> QuerySet[TriageSession]:

@@ -175,3 +175,8 @@ EMAIL_BACKEND = os.environ.get(
 DEFAULT_FROM_EMAIL = os.environ.get('MEDIX_DEFAULT_FROM_EMAIL', 'noreply@medix.invalid')
 MEDIX_PUBLIC_BASE_URL = os.environ.get('MEDIX_PUBLIC_BASE_URL', '')
 PASSWORD_RESET_TIMEOUT = 30 * 60
+
+# Integração LLM (ADR 0003): quando GEMINI_API_KEY está configurada no .env, usa GeminiLlmAdapter.
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-3-flash-preview')
+MEDIX_LLM_BACKEND = os.environ.get('MEDIX_LLM_BACKEND', '')

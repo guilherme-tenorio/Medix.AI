@@ -16,25 +16,40 @@
         <h1>Iniciar triagem</h1>
 
         <div class="alert-box" role="region" aria-label="Dados do paciente selecionado">
-            <p><strong>Paciente:</strong> {{ sujeito.full_name }}</p>
-            <p><strong>Idade:</strong> {{ sujeito.age_years }} anos</p>
-            <p><strong>Vínculo:</strong> {{ sujeito.relationship_label }}</p>
-            <p><strong>Alergias:</strong> {% if sujeito.clinical_profile.has_allergy %}{{ sujeito.clinical_profile.allergy_description }}{% else %}Nenhuma informada{% endif %}</p>
+            <p><strong>Paciente:</strong> {{ sujeito.full_name }} · <strong>Idade:</strong> {{ sujeito.age_years }} anos · <strong>Vínculo:</strong> {{ sujeito.relationship_label }}</p>
+            <p style="margin-bottom:0;"><strong>Alergias registradas:</strong> {% if sujeito.clinical_profile.has_allergy %}{{ sujeito.clinical_profile.allergy_description }}{% else %}Nenhuma informada{% endif %}</p>
         </div>
 
         <form method="post" novalidate>
             {% csrf_token %}
             {{ form.non_field_errors }}
             {{ form.dependent_id }}
-            {% for field in form %}
-                {% if field.name != 'dependent_id' %}
-                    <div class="field-group">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field }}
-                        {{ field.errors }}
-                    </div>
-                {% endif %}
-            {% endfor %}
+
+            <div class="field-group field-group-checkbox">
+                {{ form.identity_confirmed }}
+                <label for="{{ form.identity_confirmed.id_for_label }}">{{ form.identity_confirmed.label }}</label>
+            </div>
+            {{ form.identity_confirmed.errors }}
+
+            <div class="field-group">
+                <label for="{{ form.symptoms_description.id_for_label }}">{{ form.symptoms_description.label }}</label>
+                {{ form.symptoms_description }}
+                {{ form.symptoms_description.errors }}
+            </div>
+
+            <div class="audit-filter-grid">
+                <div class="field-group">
+                    <label for="{{ form.symptom_onset.id_for_label }}">{{ form.symptom_onset.label }}</label>
+                    {{ form.symptom_onset }}
+                    {{ form.symptom_onset.errors }}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.pain_intensity.id_for_label }}">{{ form.pain_intensity.label }}</label>
+                    {{ form.pain_intensity }}
+                    {{ form.pain_intensity.errors }}
+                </div>
+            </div>
+
             <button class="button-primary" type="submit">Avançar na triagem</button>
         </form>
     </section>

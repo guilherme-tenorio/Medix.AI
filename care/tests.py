@@ -220,3 +220,18 @@ class ClinicalQueueAndChatTests(TestCase):
         self.client.force_login(self.medico.user)
         resp_med = self.client.get(reverse('care:queue_dashboard'))
         self.assertEqual(resp_med.status_code, 200)
+
+    def test_polling_json_e_copiloto_ia_no_chat(self):
+        t_laranja = self._criar_triagem_concluida(self.paciente_a, 'Dor abdominal forte', 8)
+        item = QueueService.enfileirar_triagem(t_laranja)
+        _, sessao = QueueService.aceitar_chamado(self.medico.user_id, item.pk)
+        ChatService.enviar_mensagem(self.paciente_a.user_id, sessao.pk, content='A dor piorou')
+
+        self.client.force_login(self.medico.user)
+        resp_poll = self.client.get(reverse('care:chat_messages_poll', kwargs={'session_id': sessao.pk}))
+        self.assertEqual(resp_poll.status_code, 200)
+        self.assertEqual(len(resp_poll.json()['messages']), 1)
+
+        resp_ia = self.client.post(reverse('care:chat_ai_assist', kwargs={'session_id': sessao.pk}))
+        self.assertEqual(resp_ia.status_code, 200)
+        self.assertIn('summary', resp_ia.json())

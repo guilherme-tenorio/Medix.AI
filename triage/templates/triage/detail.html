@@ -8,6 +8,7 @@
         <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
         <nav class="portal-actions">
             <a class="button-secondary" href="{% url 'triage:list' %}">Minhas triagens</a>
+            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Portal</a>
         </nav>
     </header>
 
@@ -15,15 +16,20 @@
         <p class="eyebrow eyebrow-blue">PROTOCOLO DE MANCHESTER</p>
         <h1>Triagem #{{ sessao.pk }}</h1>
 
-        <p><strong>Relato:</strong> {{ sessao.symptoms_description }}</p>
-        <p><strong>Início/duração:</strong> {{ sessao.symptom_onset }} | <strong>Intensidade:</strong> {{ sessao.pain_intensity }}/10</p>
+        <div class="panel-surface">
+            <p><strong>Relato:</strong> {{ sessao.symptoms_description }}</p>
+            <p><strong>Início/duração:</strong> {{ sessao.symptom_onset }} | <strong>Intensidade:</strong> {{ sessao.pain_intensity }}/10</p>
+        </div>
 
         {% if sessao.is_completed %}
-            <div class="alert-box" role="status">
-                <p><strong>Classificação de risco:</strong> {{ sessao.get_risk_color_display }}</p>
+            <div class="alert-box {% if sessao.risk_color == 'red' %}alert-box-danger{% endif %}" role="status">
+                <p>
+                    <strong>Classificação de risco:</strong>
+                    <span class="badge badge-{{ sessao.risk_color }}">{{ sessao.get_risk_color_display }}</span>
+                </p>
                 <p><strong>Encaminhamento:</strong> {{ sessao.get_routing_destination_display }}</p>
                 {% if sessao.ai_summary %}
-                    <p><strong>Resumo clínico:</strong> {{ sessao.ai_summary }}</p>
+                    <p><strong>Resumo clínico (IA):</strong> {{ sessao.ai_summary }}</p>
                 {% endif %}
                 {% if sessao.ai_guidance_text and sessao.routing_destination == 'ai_guidance' %}
                     <p><strong>Orientação:</strong> {{ sessao.ai_guidance_text }}</p>
@@ -32,12 +38,29 @@
                     <p><strong>Sugestão para validação médica:</strong> {{ sessao.suggested_medication }}</p>
                 {% endif %}
             </div>
-            <p>Esta triagem está concluída e é imutável. Para novos sintomas, inicie uma nova triagem.</p>
+
+            <div class="portal-actions">
+                {% if emergency_dispatch %}
+                    <a class="button-danger" href="{% url 'triage:emergency' dispatch_id=emergency_dispatch.pk %}">Abrir alerta de emergência</a>
+                {% endif %}
+                {% if chat_session %}
+                    <a class="button-primary button-inline" href="{% url 'care:chat_room' session_id=chat_session.pk %}">Entrar no chat médico</a>
+                {% elif sessao.routing_destination == 'synchronous_chat' %}
+                    <span class="badge badge-yellow">Aguardando um médico aceitar seu chamado na fila...</span>
+                {% endif %}
+                {% if digital_prescription %}
+                    <a class="button-primary button-inline" href="{% url 'prescriptions:detail' prescription_id=digital_prescription.pk %}">Ver receita digital</a>
+                {% elif sessao.routing_destination == 'prescription_review' %}
+                    <span class="badge badge-green">Na fila de revisão médica de prescrição</span>
+                {% endif %}
+                <a class="button-secondary" href="{% url 'triage:start' %}">Iniciar nova triagem</a>
+            </div>
+            <p class="intro">Esta triagem está concluída e é imutável.</p>
         {% else %}
-            <h2>Perguntas complementares</h2>
-            <ol>
+            <h2>Perguntas complementares (IA)</h2>
+            <ol class="item-list">
                 {% for pergunta in perguntas %}
-                    <li>{{ pergunta }}</li>
+                    <li class="item-row">{{ pergunta }}</li>
                 {% endfor %}
             </ol>
             <form method="post" novalidate>
@@ -50,7 +73,7 @@
                         {{ field.errors }}
                     </div>
                 {% endfor %}
-                <button class="button-primary" type="submit">Concluir triagem</button>
+                <button class="button-primary" type="submit">Concluir triagem e classificar risco</button>
             </form>
         {% endif %}
     </section>

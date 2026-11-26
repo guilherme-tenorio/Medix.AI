@@ -92,6 +92,44 @@ def _gerar_hash_icp(
 
 
 class PrescriptionReviewService:
+    @classmethod
+    def obter_contexto_revisao(cls, professional_user_id: int, triage_id: UUID) -> dict:
+        _obter_medico_prescritor(professional_user_id)
+        triagem = (
+            TriageSession.objects.select_related(
+                'patient__user',
+                'patient__clinical_profile',
+                'dependent__guardian__user',
+                'dependent__clinical_profile',
+            )
+            .filter(pk=triage_id)
+            .first()
+        )
+        if triagem is None:
+            raise ReceitaNaoEncontrada('Triagem não encontrada.')
+
+        if triagem.patient_id is not None:
+            perfil = triagem.patient.clinical_profile
+            nome = triagem.patient.user.get_full_name() or triagem.patient.user.email
+            genero = triagem.patient.get_gender_display()
+        else:
+            perfil = triagem.dependent.clinical_profile
+            nome = triagem.dependent.full_name
+            genero = triagem.dependent.get_gender_display()
+
+        conflito, detalhe_conflito = cls.verificar_conflito_alergia(
+            triagem,
+            triagem.suggested_medication,
+        )
+        return {
+            'triagem': triagem,
+            'paciente_nome': nome,
+            'paciente_genero': genero,
+            'perfil_clinico': perfil,
+            'conflito_alergia': conflito,
+            'detalhe_conflito': detalhe_conflito,
+        }
+
     @staticmethod
     def verificar_conflito_alergia(
         triage_session: TriageSession,
@@ -237,6 +275,24 @@ class PrescriptionReviewService:
                     queue_item.status = ClinicalQueueItem.Status.FINISHED
                     queue_item.finished_at = agora
                     queue_item.save(update_fields=('status', 'finished_at'))
+
+                from notifications.models import NotificationOutbox
+                from notifications.services import NotificacaoService
+
+                dono_id = (
+                    triagem.patient.user_id
+                    if triagem.patient_id is not None
+                    else triagem.dependent.guardian.user_id
+                )
+                NotificacaoService.enviar_notificacao(
+                    dono_id,
+                    event_key=f'prescription-issued:{receita.pk}',
+                    title='Nova receita digital disponível',
+                    masked_body='Sua receita digital assinada está disponível no portal MEDIX.AI.',
+                    channel=NotificationOutbox.Channel.PUSH,
+                    priority=NotificationOutbox.Priority.MODERATE,
+                    deep_link=f'/receitas/{receita.pk}/',
+                )
 
             elif decision == PrescriptionReview.Decision.REJECTED_TO_CHAT:
                 if queue_item is not None:

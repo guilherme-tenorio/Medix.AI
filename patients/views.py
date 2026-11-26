@@ -38,6 +38,19 @@ class SolicitarCodigoSmsView(View):
             except ValidationError as erro:
                 messages.error(request, '; '.join(erro.messages))
             else:
+                from django.conf import settings
+                from core.integrations.sms import SandboxSmsAdapter
+
+                if settings.DEBUG and form.cleaned_data['phone']:
+                    from users.identifiers import normalizar_celular
+
+                    tel_norm = normalizar_celular(form.cleaned_data['phone'])
+                    codigo_dev = SandboxSmsAdapter.sent_codes.get(tel_norm)
+                    if codigo_dev:
+                        messages.info(
+                            request,
+                            f'[MODO DEV] Código SMS gerado para teste: {codigo_dev}',
+                        )
                 messages.success(request, 'Código de verificação SMS enviado para o celular informado.')
         else:
             messages.error(request, 'Informe um celular válido com DDD.')

@@ -109,7 +109,21 @@ class PortalHomeView(View):
         if not AutenticacaoService.pode_acessar_portal(request.user, self.papel):
             AutenticacaoService.registrar_negacao_portal(request.user, self.papel)
             raise PermissionDenied
-        return render(request, 'users/portal_home.html', {'nome_portal': self.nome_portal})
+
+        contexto = {'nome_portal': self.nome_portal}
+        if request.user.role == User.Role.PATIENT:
+            from care.services import ChatService
+            from notifications.services import NotificacaoService
+
+            contexto['chats_paciente'] = ChatService.listar_sessoes_paciente(request.user.id)[:5]
+            contexto['notificacoes_nao_lidas'] = NotificacaoService.listar_central_usuario(
+                request.user.id
+            ).filter(read_at__isnull=True).count()
+        elif request.user.role == User.Role.PROFESSIONAL:
+            from professionals.services import ProfessionalService
+
+            contexto['perfil_medico'] = ProfessionalService.obter_por_usuario(request.user.id)
+        return render(request, 'users/portal_home.html', contexto)
 
 
 class PatientPortalView(PortalHomeView):

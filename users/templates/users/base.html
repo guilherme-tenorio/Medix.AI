@@ -21,6 +21,15 @@
         <button type="button" class="accessibility-button" data-voice-toggle aria-pressed="false" hidden>Ativar voz</button>
     </nav>
     <p class="visually-hidden" data-accessibility-status role="status" aria-live="polite" aria-atomic="true"></p>
+    {% if messages %}
+        <div class="flash-stack" role="region" aria-label="Avisos do sistema">
+            {% for message in messages %}
+                <div class="flash-toast flash-{{ message.tags|default:'info' }}" role="status">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
     {% block body %}{% endblock %}
     <script src="{% static 'users/js/accessibility.js' %}" defer></script>
     <script src="{% static 'users/js/voice_input.js' %}" defer></script>

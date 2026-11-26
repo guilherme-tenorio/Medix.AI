@@ -127,22 +127,14 @@ class TriageDetailView(LoginRequiredMixin, View):
     def get(self, request: HttpRequest, triage_id: UUID) -> HttpResponse:
         _garantir_paciente(request)
         try:
-            sessao = TriageService.obter_triagem(request.user.id, triage_id)
+            ctx = TriageService.obter_contexto_detalhe(request.user.id, triage_id)
         except TriagemNaoEncontrada:
             raise Http404 from None
         except PermissaoTriagemNegada:
             raise PermissionDenied from None
 
-        perguntas = (sessao.answers or {}).get('questions', [])
-        return render(
-            request,
-            self.template_name,
-            {
-                'sessao': sessao,
-                'perguntas': perguntas,
-                'form': TriageAnswersForm(),
-            },
-        )
+        ctx['form'] = TriageAnswersForm()
+        return render(request, self.template_name, ctx)
 
     def post(self, request: HttpRequest, triage_id: UUID) -> HttpResponse:
         _garantir_paciente(request)

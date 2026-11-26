@@ -14,20 +14,47 @@
     <section class="portal-card">
         <p class="eyebrow eyebrow-blue">GESTÃO ADMINISTRATIVA</p>
         <h1>Administradores</h1>
-        <ul>
-            {% for adm in admins %}
-                <li>
-                    <strong>{{ adm.get_full_name|default:adm.email }}</strong> ({{ adm.email }}) —
-                    {% if adm.is_active %}Ativo{% else %}Inativo{% endif %}
-                    {% if adm.is_active %}
-                        <form method="post" action="{% url 'audit:deactivate_admin' admin_id=adm.pk %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button class="button-secondary" type="submit">Desativar</button>
-                        </form>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
+
+        <div class="split-layout">
+            <form method="post" novalidate class="panel-surface">
+                {% csrf_token %}
+                <h2 style="margin-top:0;">Novo administrador</h2>
+                {{ form.non_field_errors }}
+                {% for field in form %}
+                    <div class="field-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+                <button class="button-primary" type="submit">Criar conta administrativa</button>
+            </form>
+
+            <div class="panel-surface">
+                <h2 style="margin-top:0;">Contas cadastradas</h2>
+                <ul class="item-list">
+                    {% for adm in admins %}
+                        <li class="item-row">
+                            <div class="item-meta">
+                                <strong>{{ adm.get_full_name|default:adm.email }}</strong>
+                                <small>{{ adm.email }}</small>
+                            </div>
+                            <div class="portal-actions">
+                                <span class="badge {% if adm.is_active %}badge-green{% else %}badge-white{% endif %}">
+                                    {% if adm.is_active %}Ativo{% else %}Inativo{% endif %}
+                                </span>
+                                {% if adm.is_active %}
+                                    <form method="post" action="{% url 'audit:deactivate_admin' admin_id=adm.pk %}">
+                                        {% csrf_token %}
+                                        <button class="button-secondary" type="submit">Desativar</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </section>
 </main>
 {% endblock %}

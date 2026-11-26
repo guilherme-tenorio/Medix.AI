@@ -127,6 +127,17 @@ class QueueService:
         if prioridade is None:
             raise ValidationError('Cor de risco inválida para fila.')
 
+        existente = (
+            ClinicalQueueItem.objects.filter(
+                triage_session=triage_session,
+                queue_type=tipo,
+                status=ClinicalQueueItem.Status.WAITING,
+            )
+            .first()
+        )
+        if existente is not None:
+            return existente
+
         return ClinicalQueueItem.objects.create(
             triage_session=triage_session,
             queue_type=tipo,
@@ -220,6 +231,18 @@ class QueueService:
                     queue_item=item,
                     triage_session=item.triage_session,
                     professional=medico,
+                )
+                from notifications.models import NotificationOutbox
+                from notifications.services import NotificacaoService
+
+                NotificacaoService.enviar_notificacao(
+                    _dono_da_triagem(item.triage_session),
+                    event_key=f'chat-started:{sessao_chat.pk}',
+                    title='Seu atendimento médico começou',
+                    masked_body='Um médico aceitou seu chamado. Acesse o MEDIX.AI para entrar na sala de chat.',
+                    channel=NotificationOutbox.Channel.PUSH,
+                    priority=NotificationOutbox.Priority.URGENT,
+                    deep_link=f'/chat/{sessao_chat.pk}/',
                 )
             return item, sessao_chat
 
@@ -455,3 +478,63 @@ class ChatService:
                 )
 
             return desfecho, dispatch
+
+    @classmethod
+    def listar_sessoes_paciente(cls, user_id: int) -> QuerySet[ChatSession]:
+        from django.db.models import Q
+
+        return (
+            ChatSession.objects.select_related(
+                'professional__user',
+                'triage_session__patient__user',
+                'triage_session__dependent',
+            )
+            .filter(
+                Q(triage_session__patient__user_id=user_id)
+                | Q(triage_session__dependent__guardian__user_id=user_id)
+                | Q(triage_session__initiated_by_id=user_id)
+            )
+            .order_by('is_closed', '-created_at')
+        )
+
+    @classmethod
+    def gerar_apoio_ia(cls, professional_user_id: int, session_id: UUID) -> str:
+        from core.integrations.llm import LlmIntegrationUnavailable, get_llm_adapter
+        from triage.services import _faixa_etaria
+
+        sessao = cls.obter_sessao_autorizada(professional_user_id, session_id)
+        if sessao.professional.user_id != professional_user_id:
+            raise PermissaoAtendimentoNegada('Apenas o médico responsável pode solicitar síntese da IA.')
+
+        triagem = sessao.triage_session
+        if triagem.patient_id is not None:
+            perfil = triagem.patient.clinical_profile
+            idade = _calcular_idade(triagem.patient.birth_date)
+            genero = triagem.patient.gender
+        else:
+            perfil = triagem.dependent.clinical_profile
+            idade = _calcular_idade(triagem.dependent.birth_date)
+            genero = triagem.dependent.gender
+
+        # Contexto estritamente desidentificado (ADR 0003: sem nome ou CPF)
+        contexto = (
+            f'Faixa etária: {_faixa_etaria(idade)} | Gênero: {genero} | '
+            f'Cor Manchester: {triagem.get_risk_color_display()} | '
+            f'Sintomas iniciais: {triagem.symptoms_description[:300]} | '
+            f'Alergias: {perfil.allergy_description if perfil.has_allergy else "Nenhuma"} | '
+            f'Hipertensão: {perfil.has_hypertension} | Diabetes: {perfil.has_diabetes}'
+        )
+        mensagens = [
+            {
+                'role': 'medico' if m.sender_id == sessao.professional.user_id else 'paciente',
+                'content': m.content,
+            }
+            for m in ChatMessage.objects.filter(session=sessao).order_by('created_at')
+        ]
+        try:
+            return get_llm_adapter().assist_clinical_chat(
+                clinical_context=contexto,
+                messages_history=mensagens,
+            )
+        except LlmIntegrationUnavailable as erro:
+            raise ValidationError(str(erro)) from erro

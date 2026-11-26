@@ -17,7 +17,7 @@
         <h1>Métricas ao vivo</h1>
 
         {% if metricas.bottleneck_alerts %}
-            <div class="alert-box" role="alert">
+            <div class="alert-box alert-box-danger" role="alert">
                 <strong>Alertas de gargalo:</strong>
                 <ul>
                     {% for alerta in metricas.bottleneck_alerts %}
@@ -27,29 +27,50 @@
             </div>
         {% endif %}
 
-        <ul>
-            <li><strong>Fila de chat síncrono (aguardando):</strong> {{ metricas.chat_queue_waiting }}</li>
-            <li><strong>Fila de revisão de prescrição (aguardando):</strong> {{ metricas.prescription_queue_waiting }}</li>
-            <li><strong>Atendimentos em andamento:</strong> {{ metricas.in_progress_count }}</li>
-            <li><strong>Tempo médio de espera:</strong> {{ metricas.avg_wait_minutes }} min</li>
-            <li><strong>Emergências nas últimas 24h:</strong> {{ metricas.emergencies_last_24h }}</li>
-            <li><strong>Total de pareceres médicos registrados:</strong> {{ metricas.total_reviews }}</li>
-            <li><strong>Médicos homologados Online no plantão:</strong> {{ metricas.active_doctors_online }}</li>
-        </ul>
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <span class="kpi-label">Fila de Chat</span>
+                <span class="kpi-value">{{ metricas.chat_queue_waiting }}</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Fila de Revisão</span>
+                <span class="kpi-value">{{ metricas.prescription_queue_waiting }}</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Em Atendimento</span>
+                <span class="kpi-value">{{ metricas.in_progress_count }}</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Espera Média</span>
+                <span class="kpi-value">{{ metricas.avg_wait_minutes }}m</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Emergências (24h)</span>
+                <span class="kpi-value">{{ metricas.emergencies_last_24h }}</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">Médicos Online</span>
+                <span class="kpi-value">{{ metricas.active_doctors_online }}</span>
+            </div>
+        </div>
 
         <h2>Últimos acessos a prontuário (trilha imutável)</h2>
         {% if ultimos_acessos_prontuario %}
-            <ul>
+            <ul class="item-list">
                 {% for log in ultimos_acessos_prontuario %}
-                    <li>
-                        {{ log.accessed_at|date:"d/m/Y H:i:s" }} — {{ log.actor.email }}
-                        {% if log.crm_snapshot %}(CRM {{ log.crm_snapshot }}){% endif %}
-                        — {% if log.allowed %}Permitido{% else %}Negado{% endif %} ({{ log.reason }})
+                    <li class="item-row">
+                        <div class="item-meta">
+                            <strong>{{ log.actor.email }} {% if log.crm_snapshot %}(CRM {{ log.crm_snapshot }}){% endif %}</strong>
+                            <small>{{ log.accessed_at|date:"d/m/Y H:i:s" }} · {{ log.reason }}</small>
+                        </div>
+                        <span class="badge {% if log.allowed %}badge-green{% else %}badge-red{% endif %}">
+                            {% if log.allowed %}Permitido{% else %}Negado{% endif %}
+                        </span>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p>Nenhum acesso registrado.</p>
+            <p class="intro">Nenhum acesso registrado até o momento.</p>
         {% endif %}
     </section>
 </main>

@@ -16,63 +16,159 @@
     </header>
 
     <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">ATENDIMENTO SÍNCRONO</p>
+        <p class="eyebrow eyebrow-blue">ATENDIMENTO SÍNCRONO CRIPTOGRAFADO</p>
         <h1>Chat clínico — {{ resumo.nome }}</h1>
 
-        <div class="alert-box" role="region" aria-label="Resumo clínico e alergias">
-            <p><strong>Paciente:</strong> {{ resumo.nome }} ({{ resumo.idade }} anos, {{ resumo.genero }})</p>
-            <p><strong>Classificação Manchester:</strong> {{ resumo.cor_manchester }}</p>
-            <p><strong>Alergias:</strong> {{ resumo.alergias }} | <strong>Tipo sanguíneo:</strong> {{ resumo.tipo_sanguineo }}</p>
-            <p><strong>Sintomas relatados:</strong> {{ resumo.sintomas }}</p>
-            {% if resumo.resumo_ia %}
-                <p><strong>Resumo da triagem:</strong> {{ resumo.resumo_ia }}</p>
-            {% endif %}
-        </div>
+        <div class="split-layout">
+            <aside class="panel-surface" aria-label="Resumo clínico e alergias">
+                <h2 style="margin-top:0;">Resumo clínico</h2>
+                <p><strong>Paciente:</strong> {{ resumo.nome }} ({{ resumo.idade }} anos, {{ resumo.genero }})</p>
+                <p><strong>Manchester:</strong> <span class="badge badge-blue">{{ resumo.cor_manchester }}</span></p>
+                <div class="alert-box {% if resumo.alergias != 'Nenhuma informada' %}alert-box-danger{% endif %}">
+                    <strong>Alergias:</strong> {{ resumo.alergias }}
+                </div>
+                <p><strong>Tipo sanguíneo:</strong> {{ resumo.tipo_sanguineo }}</p>
+                <p><strong>Hipertensão:</strong> {% if resumo.hipertensao %}Sim{% else %}Não{% endif %} | <strong>Diabetes:</strong> {% if resumo.diabetes %}Sim{% else %}Não{% endif %}</p>
+                <p><strong>Medicamentos contínuos:</strong> {{ resumo.medicamentos_continuos }}</p>
+                <p><strong>Sintomas relatados:</strong> {{ resumo.sintomas }}</p>
+                {% if resumo.resumo_ia %}
+                    <p><strong>Resumo da triagem:</strong> {{ resumo.resumo_ia }}</p>
+                {% endif %}
 
-        <h2>Mensagens</h2>
-        {% if mensagens %}
-            <ul>
-                {% for msg in mensagens %}
-                    <li>
-                        <strong>{{ msg.sender.get_full_name|default:msg.sender.email }}</strong>
-                        ({{ msg.created_at|date:"d/m/Y H:i:s" }}{% if msg.read_at %} — lida{% else %} — entregue{% endif %}):
-                        {{ msg.content }}
-                        {% if msg.is_from_audio_transcription %}<em>(transcrito de áudio)</em>{% endif %}
-                        {% for anexo in msg.attachments.all %}
-                            <div>Anexo: {{ anexo.original_name }} ({{ anexo.content_type }})</div>
+                {% if eh_medico and not sessao.is_closed %}
+                    <hr>
+                    <h3>Copiloto Clínico (Gemini IA)</h3>
+                    <p><small>Gera síntese desidentificada (sem nome/CPF) para apoio à decisão médica.</small></p>
+                    <button
+                        type="button"
+                        id="btn-ai-assist"
+                        class="button-secondary"
+                        data-url="{% url 'care:chat_ai_assist' session_id=sessao.pk %}"
+                    >
+                        Gerar síntese clínica com IA
+                    </button>
+                    <div id="ai-assist-output" class="alert-box alert-box-mint" hidden style="white-space:pre-wrap; margin-top:0.75rem;"></div>
+                {% endif %}
+            </aside>
+
+            <div>
+                <div
+                    id="chat-feed"
+                    class="chat-feed"
+                    data-poll-url="{% url 'care:chat_messages_poll' session_id=sessao.pk %}"
+                    data-closed="{{ sessao.is_closed|yesno:'true,false' }}"
+                    aria-live="polite"
+                >
+                    {% if mensagens %}
+                        {% for msg in mensagens %}
+                            <article class="chat-bubble {% if msg.sender_id == request.user.id %}chat-bubble-mine{% else %}chat-bubble-other{% endif %}">
+                                <div class="chat-bubble-header">
+                                    <strong>{{ msg.sender.get_full_name|default:msg.sender.email }}</strong>
+                                    <span>{{ msg.created_at|date:"d/m/Y H:i:s" }} · {% if msg.read_at %}lida{% else %}entregue{% endif %}</span>
+                                </div>
+                                <p class="chat-bubble-body">{{ msg.content }}</p>
+                                {% if msg.is_from_audio_transcription %}<small><em>(transcrito de áudio)</em></small>{% endif %}
+                                {% for anexo in msg.attachments.all %}
+                                    <div><small>📎 Anexo: {{ anexo.original_name }} ({{ anexo.content_type }})</small></div>
+                                {% endfor %}
+                            </article>
                         {% endfor %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Nenhuma mensagem enviada ainda.</p>
-        {% endif %}
+                    {% else %}
+                        <p class="intro" id="chat-empty-state">Nenhuma mensagem enviada ainda. Inicie o diálogo abaixo.</p>
+                    {% endif %}
+                </div>
 
-        {% if sessao.is_closed %}
-            <div class="alert-box" role="status">
-                <p><strong>Sessão encerrada em {{ sessao.closed_at|date:"d/m/Y H:i" }}.</strong> O diálogo é imutável.</p>
-                {% if sessao.clinical_outcome %}
-                    <p><strong>Desfecho:</strong> {{ sessao.clinical_outcome.get_outcome_type_display }}</p>
-                    <p><strong>Conduta:</strong> {{ sessao.clinical_outcome.summary_and_conduct }}</p>
+                {% if sessao.is_closed %}
+                    <div class="alert-box" role="status">
+                        <p><strong>Sessão encerrada em {{ sessao.closed_at|date:"d/m/Y H:i" }}.</strong> O diálogo é imutável.</p>
+                        {% if sessao.clinical_outcome %}
+                            <p><strong>Desfecho:</strong> {{ sessao.clinical_outcome.get_outcome_type_display }}</p>
+                            <p><strong>Conduta:</strong> {{ sessao.clinical_outcome.summary_and_conduct }}</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <form method="post" enctype="multipart/form-data" novalidate class="panel-surface" style="margin-top:1rem;">
+                        {% csrf_token %}
+                        {% for field in message_form %}
+                            <div class="field-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {{ field.errors }}
+                            </div>
+                        {% endfor %}
+                        <button class="button-primary" type="submit">Enviar mensagem</button>
+                    </form>
+
+                    {% if eh_medico %}
+                        <form method="post" action="{% url 'care:close_chat' session_id=sessao.pk %}" novalidate class="panel-surface" style="margin-top:1.25rem;">
+                            {% csrf_token %}
+                            <h2 style="margin-top:0;">Encerrar atendimento e registrar desfecho obrigatório</h2>
+                            {% for field in outcome_form %}
+                                <div class="field-group">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {{ field.errors }}
+                                </div>
+                            {% endfor %}
+                            <button class="button-secondary" type="submit">Registrar desfecho e encerrar</button>
+                        </form>
+                    {% endif %}
                 {% endif %}
             </div>
-        {% else %}
-            <form method="post" enctype="multipart/form-data" novalidate>
-                {% csrf_token %}
-                {{ message_form.as_p }}
-                <button class="button-primary" type="submit">Enviar mensagem</button>
-            </form>
-
-            {% if eh_medico %}
-                <hr>
-                <h2>Encerrar atendimento e registrar desfecho obrigatório</h2>
-                <form method="post" action="{% url 'care:close_chat' session_id=sessao.pk %}" novalidate>
-                    {% csrf_token %}
-                    {{ outcome_form.as_p }}
-                    <button class="button-secondary" type="submit">Registrar desfecho e encerrar</button>
-                </form>
-            {% endif %}
-        {% endif %}
+        </div>
     </section>
 </main>
+
+<script>
+(function () {
+    const feed = document.getElementById('chat-feed');
+    if (feed && feed.dataset.closed === 'false') {
+        const pollUrl = feed.dataset.pollUrl;
+        const renderMessages = (items) => {
+            if (!items.length) return;
+            feed.innerHTML = items.map((m) => {
+                const cls = m.is_mine ? 'chat-bubble chat-bubble-mine' : 'chat-bubble chat-bubble-other';
+                const audioTag = m.is_audio ? '<small><em>(transcrito de áudio)</em></small>' : '';
+                const anexos = (m.attachments || []).map(a => `<div><small>📎 Anexo: ${a.name} (${a.type})</small></div>`).join('');
+                const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+                return `<article class="${cls}"><div class="chat-bubble-header"><strong>${esc(m.sender_name)}</strong><span>${esc(m.created_at)} · ${esc(m.status)}</span></div><p class="chat-bubble-body">${esc(m.content)}</p>${audioTag}${anexos}</article>`;
+            }).join('');
+        };
+        setInterval(async () => {
+            try {
+                const resp = await fetch(pollUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                if (!resp.ok) return;
+                const data = await resp.json();
+                renderMessages(data.messages || []);
+                if (data.is_closed) {
+                    window.location.reload();
+                }
+            } catch (_e) {}
+        }, 2500);
+    }
+
+    const aiBtn = document.getElementById('btn-ai-assist');
+    const aiOut = document.getElementById('ai-assist-output');
+    if (aiBtn && aiOut) {
+        aiBtn.addEventListener('click', async () => {
+            aiBtn.disabled = true;
+            aiOut.hidden = false;
+            aiOut.textContent = 'Consultando IA clínica (payload desidentificado)...';
+            const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]')?.value || '';
+            try {
+                const resp = await fetch(aiBtn.dataset.url, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const data = await resp.json();
+                aiOut.textContent = resp.ok ? data.summary : (data.error || 'Serviço de IA indisponível.');
+            } catch (_e) {
+                aiOut.textContent = 'Não foi possível consultar a IA no momento.';
+            } finally {
+                aiBtn.disabled = false;
+            }
+        });
+    }
+})();
+</script>
 {% endblock %}

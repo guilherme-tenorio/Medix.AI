@@ -85,19 +85,36 @@ class PrescriptionPdfDownloadView(LoginRequiredMixin, View):
 class PrescriptionReviewView(LoginRequiredMixin, View):
     template_name = 'prescriptions/review.html'
 
+    def _carregar_contexto(self, request: HttpRequest, triage_id: UUID, form: PrescriptionReviewForm) -> dict:
+        try:
+            ctx = PrescriptionReviewService.obter_contexto_revisao(request.user.id, triage_id)
+        except ReceitaNaoEncontrada:
+            raise Http404 from None
+        except PermissaoReceitaNegada:
+            raise PermissionDenied from None
+        ctx['form'] = form
+        ctx['triage_id'] = triage_id
+        ctx['queue_item_id'] = request.GET.get('queue_item_id') or request.POST.get('queue_item_id') or ''
+        return ctx
+
     def get(self, request: HttpRequest, triage_id: UUID) -> HttpResponse:
         if request.user.role != User.Role.PROFESSIONAL:
             raise PermissionDenied
-        return render(
-            request,
-            self.template_name,
-            {'form': PrescriptionReviewForm(), 'triage_id': triage_id},
-        )
+        ctx = self._carregar_contexto(request, triage_id, PrescriptionReviewForm())
+        return render(request, self.template_name, ctx)
 
     def post(self, request: HttpRequest, triage_id: UUID) -> HttpResponse:
         if request.user.role != User.Role.PROFESSIONAL:
             raise PermissionDenied
         form = PrescriptionReviewForm(request.POST)
+        queue_item_raw = request.POST.get('queue_item_id') or request.GET.get('queue_item_id')
+        queue_item_uuid = None
+        if queue_item_raw:
+            try:
+                queue_item_uuid = UUID(queue_item_raw)
+            except ValueError:
+                queue_item_uuid = None
+
         if form.is_valid():
             try:
                 _revisao, receita, dispatch = PrescriptionReviewService.registrar_revisao(
@@ -108,6 +125,7 @@ class PrescriptionReviewView(LoginRequiredMixin, View):
                     prescribed_medication=form.cleaned_data.get('prescribed_medication', ''),
                     dosage_and_route=form.cleaned_data.get('dosage_and_route', ''),
                     instructions=form.cleaned_data.get('instructions', ''),
+                    queue_item_id=queue_item_uuid,
                 )
             except ReceitaNaoEncontrada:
                 raise Http404 from None
@@ -127,11 +145,8 @@ class PrescriptionReviewView(LoginRequiredMixin, View):
                     messages.info(request, 'Caso encaminhado para atendimento síncrono por chat.')
                 return redirect(reverse('care:queue_dashboard'))
 
-        return render(
-            request,
-            self.template_name,
-            {'form': form, 'triage_id': triage_id},
-        )
+        ctx = self._carregar_contexto(request, triage_id, form)
+        return render(request, self.template_name, ctx)
 
 
 class PrescriptionRevokeView(LoginRequiredMixin, View):

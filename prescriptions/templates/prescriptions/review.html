@@ -11,13 +11,43 @@
         </nav>
     </header>
     <section class="portal-card">
-        <p class="eyebrow eyebrow-blue">VALIDAÇÃO MÉDICA DE PRESCRIÇÃO</p>
+        <p class="eyebrow eyebrow-blue">VALIDAÇÃO MÉDICA DE PRESCRIÇÃO (ICP-BRASIL)</p>
         <h1>Revisão da triagem #{{ triage_id }}</h1>
-        <form method="post" novalidate>
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button class="button-primary" type="submit">Registrar parecer e decisão</button>
-        </form>
+
+        <div class="split-layout">
+            <aside class="panel-surface">
+                <h2 style="margin-top:0;">Dados da triagem e perfil clínico</h2>
+                <p><strong>Paciente:</strong> {{ paciente_nome }} ({{ paciente_genero }})</p>
+                <p><strong>Classificação:</strong> <span class="badge badge-{{ triagem.risk_color }}">{{ triagem.get_risk_color_display }}</span></p>
+                <p><strong>Sintomas:</strong> {{ triagem.symptoms_description }}</p>
+                <p><strong>Início/Intensidade:</strong> {{ triagem.symptom_onset }} ({{ triagem.pain_intensity }}/10)</p>
+                <p><strong>Sugestão IA:</strong> {{ triagem.suggested_medication|default:"Nenhuma sugestão" }}</p>
+                <div class="alert-box {% if perfil_clinico.has_allergy %}alert-box-danger{% endif %}">
+                    <strong>Alergias:</strong> {% if perfil_clinico.has_allergy %}{{ perfil_clinico.allergy_description }}{% else %}Nenhuma informada{% endif %}
+                </div>
+                {% if conflito_alergia %}
+                    <div class="alert-box alert-box-danger" role="alert">
+                        <strong>{{ detalhe_conflito }}</strong>
+                    </div>
+                {% endif %}
+                <p><strong>Tipo sanguíneo:</strong> {{ perfil_clinico.blood_type }}</p>
+                <p><strong>Comorbidades:</strong> Hipertensão: {% if perfil_clinico.has_hypertension %}Sim{% else %}Não{% endif %} | Diabetes: {% if perfil_clinico.has_diabetes %}Sim{% else %}Não{% endif %}</p>
+            </aside>
+
+            <form method="post" novalidate class="panel-surface">
+                {% csrf_token %}
+                <input type="hidden" name="queue_item_id" value="{{ queue_item_id }}">
+                {{ form.non_field_errors }}
+                {% for field in form %}
+                    <div class="field-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+                <button class="button-primary" type="submit">Registrar parecer e assinar decisão</button>
+            </form>
+        </div>
     </section>
 </main>
 {% endblock %}
