@@ -1,0 +1,49 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+    {{ block.super }}
+    <div class="module">
+        <table>
+            <caption>{% translate "Auditoria" %}</caption>
+            <tbody>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'audit:access_history' %}">Histórico de acessos</a>
+                    </th>
+                    <td>Consultar tentativas registradas</td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'users:admin_password_reset_request' %}">Redefinição de senha administrativa</a>
+                    </th>
+                    <td>Solicitar a outro administrador ativo</td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'users:professional_temporary_password' %}">Senha provisória para médico</a>
+                    </th>
+                    <td>Enviar ao e-mail cadastrado e exigir troca no primeiro acesso</td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'professionals:admin_list' %}">Cadastro e homologação de médicos</a>
+                    </th>
+                    <td>Provisionar, homologar CRM/ICP-Brasil e suspender médicos</td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'audit:monitoring' %}">Monitoramento operacional</a>
+                    </th>
+                    <td>Métricas ao vivo de fila, espera, emergências, gargalos e plantão</td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <a href="{% url 'audit:admin_accounts' %}">Contas administrativas</a>
+                    </th>
+                    <td>Gerenciar administradores com proteção contra desativação do último ativo</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

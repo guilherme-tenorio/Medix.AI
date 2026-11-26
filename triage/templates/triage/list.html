@@ -1,0 +1,48 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Triagens — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Voltar ao portal</a>
+        </nav>
+    </header>
+
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">TRIAGEM ASSISTIDA</p>
+        <h1>Minhas triagens</h1>
+        <div class="portal-actions">
+            <a class="button-primary" href="{% url 'triage:start' %}">Nova triagem para mim</a>
+            {% for dep in dependentes %}
+                <a class="button-secondary" href="{% url 'triage:start' %}?dependent_id={{ dep.pk }}">
+                    Triagem para {{ dep.full_name }}
+                </a>
+            {% endfor %}
+        </div>
+
+        {% if triagens %}
+            <ul>
+                {% for item in triagens %}
+                    <li>
+                        <a href="{% url 'triage:detail' triage_id=item.pk %}">
+                            {{ item.created_at|date:"d/m/Y H:i" }} —
+                            {% if item.patient %}{{ item.patient.user.get_full_name|default:item.patient.user.email }}{% else %}{{ item.dependent.full_name }}{% endif %}
+                            —
+                            {% if item.is_completed %}
+                                {{ item.get_risk_color_display }} ({{ item.get_routing_destination_display }})
+                            {% else %}
+                                Em andamento
+                            {% endif %}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhuma triagem registrada até o momento.</p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

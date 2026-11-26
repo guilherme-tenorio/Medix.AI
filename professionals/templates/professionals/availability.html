@@ -1,0 +1,43 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Disponibilidade Médica — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">PLANTÃO MÉDICO</p>
+        <h1>Disponibilidade e telefone operacional</h1>
+        <p>
+            CRM {{ perfil.crm_number }}/{{ perfil.crm_uf }} |
+            CRM regular: {% if perfil.crm_regular %}Sim{% else %}Não{% endif %} |
+            ICP-Brasil: {% if perfil.icp_brasil_active %}Ativo{% else %}Inativo{% endif %}
+        </p>
+
+        {% if messages %}
+            <div role="status" aria-live="polite">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for field in form %}
+                <div class="field-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div role="alert">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button class="button-primary" type="submit">Atualizar disponibilidade</button>
+            <a class="button-secondary" href="{% url 'users:professional_portal' %}">Voltar ao portal</a>
+        </form>
+    </section>
+</main>
+{% endblock %}

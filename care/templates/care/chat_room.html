@@ -1,0 +1,78 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Chat Médico — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            {% if eh_medico %}
+                <a class="button-secondary" href="{% url 'care:queue_dashboard' %}">Voltar à fila</a>
+            {% else %}
+                <a class="button-secondary" href="{% url 'users:patient_portal' %}">Portal do paciente</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">ATENDIMENTO SÍNCRONO</p>
+        <h1>Chat clínico — {{ resumo.nome }}</h1>
+
+        <div class="alert-box" role="region" aria-label="Resumo clínico e alergias">
+            <p><strong>Paciente:</strong> {{ resumo.nome }} ({{ resumo.idade }} anos, {{ resumo.genero }})</p>
+            <p><strong>Classificação Manchester:</strong> {{ resumo.cor_manchester }}</p>
+            <p><strong>Alergias:</strong> {{ resumo.alergias }} | <strong>Tipo sanguíneo:</strong> {{ resumo.tipo_sanguineo }}</p>
+            <p><strong>Sintomas relatados:</strong> {{ resumo.sintomas }}</p>
+            {% if resumo.resumo_ia %}
+                <p><strong>Resumo da triagem:</strong> {{ resumo.resumo_ia }}</p>
+            {% endif %}
+        </div>
+
+        <h2>Mensagens</h2>
+        {% if mensagens %}
+            <ul>
+                {% for msg in mensagens %}
+                    <li>
+                        <strong>{{ msg.sender.get_full_name|default:msg.sender.email }}</strong>
+                        ({{ msg.created_at|date:"d/m/Y H:i:s" }}{% if msg.read_at %} — lida{% else %} — entregue{% endif %}):
+                        {{ msg.content }}
+                        {% if msg.is_from_audio_transcription %}<em>(transcrito de áudio)</em>{% endif %}
+                        {% for anexo in msg.attachments.all %}
+                            <div>Anexo: {{ anexo.original_name }} ({{ anexo.content_type }})</div>
+                        {% endfor %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhuma mensagem enviada ainda.</p>
+        {% endif %}
+
+        {% if sessao.is_closed %}
+            <div class="alert-box" role="status">
+                <p><strong>Sessão encerrada em {{ sessao.closed_at|date:"d/m/Y H:i" }}.</strong> O diálogo é imutável.</p>
+                {% if sessao.clinical_outcome %}
+                    <p><strong>Desfecho:</strong> {{ sessao.clinical_outcome.get_outcome_type_display }}</p>
+                    <p><strong>Conduta:</strong> {{ sessao.clinical_outcome.summary_and_conduct }}</p>
+                {% endif %}
+            </div>
+        {% else %}
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {{ message_form.as_p }}
+                <button class="button-primary" type="submit">Enviar mensagem</button>
+            </form>
+
+            {% if eh_medico %}
+                <hr>
+                <h2>Encerrar atendimento e registrar desfecho obrigatório</h2>
+                <form method="post" action="{% url 'care:close_chat' session_id=sessao.pk %}" novalidate>
+                    {% csrf_token %}
+                    {{ outcome_form.as_p }}
+                    <button class="button-secondary" type="submit">Registrar desfecho e encerrar</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

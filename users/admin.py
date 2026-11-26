@@ -8,11 +8,12 @@ from .models import User
 @admin.register(User)
 class MedixUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
-        ('Dados MEDIX.AI', {'fields': ('cpf', 'role')}),
+        ('Dados MEDIX.AI', {'fields': ('cpf', 'role', 'failed_login_attempts', 'locked_until', 'must_change_password')}),
     )
     list_display = ('username', 'email', 'cpf', 'role', 'is_active', 'is_staff')
     list_filter = ('role', 'is_active', 'is_staff')
     search_fields = ('username', 'email', 'cpf')
+    readonly_fields = UserAdmin.readonly_fields + ('failed_login_attempts', 'locked_until')
 
     def has_add_permission(self, request: HttpRequest) -> bool:
         return False

@@ -1,0 +1,71 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Gestão de Médicos — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">ADMINISTRAÇÃO</p>
+        <h1>Cadastro e homologação de médicos</h1>
+
+        {% if messages %}
+            <div role="status" aria-live="polite">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <fieldset>
+                <legend>Novo médico</legend>
+                {% for field in form %}
+                    <div class="field-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <div role="alert">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </fieldset>
+            <button class="button-primary" type="submit">Cadastrar médico</button>
+        </form>
+
+        <h2>Médicos cadastrados</h2>
+        {% if profissionais %}
+            <ul>
+                {% for medico in profissionais %}
+                    <li>
+                        <strong>{{ medico.user.get_full_name }}</strong>
+                        — CRM {{ medico.crm_number }}/{{ medico.crm_uf }}
+                        — {{ medico.get_homologation_status_display }}
+                        ({{ medico.get_availability_display }})
+                        {% if medico.homologation_status == 'pending' %}
+                            <form method="post" action="{% url 'professionals:admin_homologate' medico.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                {{ homologate_form }}
+                                <button class="button-primary" type="submit">Homologar</button>
+                            </form>
+                        {% endif %}
+                        {% if medico.homologation_status != 'suspended' %}
+                            <form method="post" action="{% url 'professionals:admin_suspend' medico.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="button-secondary" type="submit">Suspender</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhum médico cadastrado.</p>
+        {% endif %}
+
+        <p><a class="button-secondary" href="{% url 'admin:index' %}">Voltar ao Admin</a></p>
+    </section>
+</main>
+{% endblock %}

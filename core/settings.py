@@ -12,11 +12,13 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -56,6 +58,9 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'users.User'
+AUTHENTICATION_BACKENDS = ['users.backends.CpfEmailBackend']
+MEDIX_MAX_LOGIN_FAILURES = 5
+MEDIX_LOGIN_LOCKOUT_MINUTES = 15
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -63,6 +68,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'users.middleware.PasswordChangeRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -90,14 +96,22 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+POSTGRES_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+if not POSTGRES_PASSWORD:
+    raise ImproperlyConfigured('Configure a variável de ambiente POSTGRES_PASSWORD.')
+
+load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB', 'medix_ai_webapp'),
-        'USER': os.environ.get('POSTGRES_USER', 'medix_ai'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
-        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("DB_NAME", "medix_ai_webapp"),
+        "USER": os.environ.get("DB_USER", "postgres"),
+        "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+        "HOST": os.environ.get("DB_HOST", "localhost"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
     }
 }
 
@@ -127,6 +141,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Expiração deslizante: após 15 minutos sem requisições, a sessão expira.
 SESSION_COOKIE_AGE = 15 * 60
 SESSION_SAVE_EVERY_REQUEST = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = not DEBUG
@@ -139,7 +154,7 @@ CSRF_COOKIE_SAMESITE = 'Lax'
 
 LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'America/Fortaleza'
+TIME_ZONE = 'America/Maceio'
 
 USE_I18N = True
 
@@ -152,5 +167,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 
-# Email: mensagens ficam no console durante o desenvolvimento local.
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Adaptador desligado por padrão; configure MEDIX_EMAIL_BACKEND após escolher o provedor.
+EMAIL_BACKEND = os.environ.get(
+    'MEDIX_EMAIL_BACKEND',
+    'core.integrations.email.DisabledEmailBackend',
+)
+DEFAULT_FROM_EMAIL = os.environ.get('MEDIX_DEFAULT_FROM_EMAIL', 'noreply@medix.invalid')
+MEDIX_PUBLIC_BASE_URL = os.environ.get('MEDIX_PUBLIC_BASE_URL', '')
+PASSWORD_RESET_TIMEOUT = 30 * 60

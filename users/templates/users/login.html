@@ -1,0 +1,71 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Entrar — MEDIX.AI{% endblock %}
+
+{% block body %}
+<div class="auth-layout">
+    <aside class="brand-panel" aria-label="MEDIX.AI">
+        <div class="brand" aria-label="MEDIX.AI">
+            <span class="brand-mark" aria-hidden="true">+</span>
+            <span>MEDIX<span class="brand-accent">.AI</span></span>
+        </div>
+        <div class="brand-message">
+            <p class="eyebrow">CUIDADO CONECTADO</p>
+            <h1>Sua saúde,<br>mais <span>conectada.</span></h1>
+            <p>Um cuidado que entende você. Acesse seu espaço com segurança.</p>
+        </div>
+        <div class="pulse-line" aria-hidden="true"></div>
+        <p class="brand-footnote">Acesso seguro à plataforma MEDIX.AI</p>
+    </aside>
+
+    <main id="conteudo" class="auth-main">
+        <div class="auth-topline">
+            <span>{{ nome_portal }}</span>
+        </div>
+        <section class="auth-card" aria-labelledby="login-title">
+            <p class="eyebrow eyebrow-blue">BEM-VINDO DE VOLTA</p>
+            <h2 id="login-title">Entre na sua conta</h2>
+            <p class="intro">Acesse o portal: {{ nome_portal|lower }}.</p>
+
+            {% if form.non_field_errors %}
+                <div class="form-alert" role="alert" aria-live="assertive">
+                    {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="field-group">
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div id="id_username_errors" class="field-error" role="alert">
+                            {% for error in form.username.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="field-group">
+                    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div id="id_password_errors" class="field-error" role="alert">
+                            {% for error in form.password.errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <button class="button-primary" type="submit">Entrar <span aria-hidden="true">→</span></button>
+            </form>
+
+            {% if habilitar_recuperacao %}
+                <p class="auth-help"><a href="{% url 'users:password_reset_request' %}">Esqueci minha senha</a></p>
+            {% elif orientacao_senha %}
+                <p class="auth-help">{{ orientacao_senha }}</p>
+            {% endif %}
+
+            <div class="auth-divider"></div>
+            <p class="security-note"><span aria-hidden="true">◇</span> Sua conexão é protegida.</p>
+        </section>
+        <footer class="auth-footer">MEDIX.AI · Cuidado digital em saúde</footer>
+    </main>
+</div>
+{% endblock %}

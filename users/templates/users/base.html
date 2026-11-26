@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{% block title %}MEDIX.AI{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'users/css/medix.css' %}">
+</head>
+<body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <nav class="accessibility-toolbar" aria-label="Preferências de acessibilidade" data-accessibility-toolbar hidden>
+        <span class="accessibility-toolbar-label">Acessibilidade</span>
+        <div class="accessibility-control-group" role="group" aria-label="Tamanho do texto">
+            <button type="button" class="accessibility-button" data-text-size="smaller" aria-label="Diminuir tamanho do texto">A−</button>
+            <button type="button" class="accessibility-button" data-text-size="normal" aria-label="Restaurar tamanho padrão do texto">A</button>
+            <button type="button" class="accessibility-button" data-text-size="larger" aria-label="Aumentar tamanho do texto">A+</button>
+        </div>
+        <button type="button" class="accessibility-button" data-contrast-toggle aria-pressed="false">Alto contraste</button>
+        <button type="button" class="accessibility-button" data-voice-toggle aria-pressed="false" hidden>Ativar voz</button>
+    </nav>
+    <p class="visually-hidden" data-accessibility-status role="status" aria-live="polite" aria-atomic="true"></p>
+    {% block body %}{% endblock %}
+    <script src="{% static 'users/js/accessibility.js' %}" defer></script>
+    <script src="{% static 'users/js/voice_input.js' %}" defer></script>
+</body>
+</html>

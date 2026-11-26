@@ -1,0 +1,23 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Revisão de Prescrição — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'care:queue_dashboard' %}">Voltar à fila</a>
+        </nav>
+    </header>
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">VALIDAÇÃO MÉDICA DE PRESCRIÇÃO</p>
+        <h1>Revisão da triagem #{{ triage_id }}</h1>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="button-primary" type="submit">Registrar parecer e decisão</button>
+        </form>
+    </section>
+</main>
+{% endblock %}

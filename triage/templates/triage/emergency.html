@@ -1,0 +1,56 @@
+{% extends 'users/base.html' %}
+
+{% block title %}EMERGÊNCIA — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <section class="portal-card" role="alert" aria-live="assertive" style="border: 3px solid #dc2626;" data-tts-auto="true">
+        <p class="eyebrow" style="color: #dc2626; font-weight: 700;">CLASSIFICAÇÃO VERMELHA — ATENDIMENTO IMEDIATO</p>
+        <h1>Procure atendimento presencial urgente</h1>
+        <p data-tts-text="{{ dispatch.alert_message }}">{{ dispatch.alert_message }}</p>
+
+        <h2>Ficha resumida do paciente</h2>
+        <ul>
+            <li><strong>Nome:</strong> {{ dispatch.patient_summary.nome }}</li>
+            <li><strong>Idade:</strong> {{ dispatch.patient_summary.idade }} anos</li>
+            <li><strong>Tipo sanguíneo:</strong> {{ dispatch.patient_summary.tipo_sanguineo }}</li>
+            <li><strong>Alergias:</strong> {{ dispatch.patient_summary.alergias }}</li>
+            <li><strong>Comorbidades:</strong>
+                {% if dispatch.patient_summary.comorbidades %}
+                    {{ dispatch.patient_summary.comorbidades|join:", " }}
+                {% else %}
+                    Nenhuma informada
+                {% endif %}
+            </li>
+            {% if dispatch.patient_summary.red_flags %}
+                <li><strong>Sinais de alerta detectados:</strong> {{ dispatch.patient_summary.red_flags|join:", " }}</li>
+            {% endif %}
+        </ul>
+
+        <h2>Prontos-socorros e unidades próximas</h2>
+        <p>Se o GPS estiver desativado, o alerta acima continua válido. Você pode informar sua localização manualmente por bairro ou cidade:</p>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <div class="field-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+            <button class="button-primary" type="submit">Atualizar unidades próximas</button>
+        </form>
+
+        <ul>
+            {% for unidade in unidades %}
+                <li>
+                    <strong>{{ unidade.name }}</strong> — {{ unidade.address }} ({{ unidade.neighborhood }}, {{ unidade.city }})
+                    {% if unidade.distance_km is not None %} — {{ unidade.distance_km }} km{% endif %}
+                    | <a href="{{ unidade.external_route_url }}" target="_blank" rel="noopener noreferrer">Abrir rota externa</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+</main>
+{% endblock %}

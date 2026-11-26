@@ -1,0 +1,66 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Fila Clínica — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'professionals:availability' %}">Disponibilidade</a>
+            <a class="button-secondary" href="{% url 'users:professional_portal' %}">Portal médico</a>
+        </nav>
+    </header>
+
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">PAINEL CLÍNICO</p>
+        <h1>Filas de atendimento</h1>
+
+        <form method="get" class="portal-actions">
+            <label for="id_risk_color">Filtrar por cor:</label>
+            <select id="id_risk_color" name="risk_color">
+                <option value="">Todas</option>
+                <option value="orange" {% if cor_filtro == 'orange' %}selected{% endif %}>Laranja</option>
+                <option value="yellow" {% if cor_filtro == 'yellow' %}selected{% endif %}>Amarela</option>
+                <option value="green" {% if cor_filtro == 'green' %}selected{% endif %}>Verde</option>
+                <option value="white" {% if cor_filtro == 'white' %}selected{% endif %}>Branca</option>
+            </select>
+            <button class="button-secondary" type="submit">Filtrar</button>
+        </form>
+
+        <h2>Fila de chat síncrono</h2>
+        {% if fila_chat %}
+            <ul>
+                {% for item in fila_chat %}
+                    <li>
+                        <strong>{{ item.risk_color_label }}</strong> — {{ item.abbreviated_name }}, {{ item.age_years }} anos ({{ item.gender }}) — Espera: {{ item.wait_minutes }} min — {{ item.status_label }}
+                        <form method="post" action="{% url 'care:accept_queue_item' queue_item_id=item.queue_item_id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="button-primary" type="submit">Aceitar chamado</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhum chamado aguardando na fila de chat síncrono.</p>
+        {% endif %}
+
+        <h2>Fila de revisão de prescrição</h2>
+        {% if fila_revisao %}
+            <ul>
+                {% for item in fila_revisao %}
+                    <li>
+                        <strong>{{ item.risk_color_label }}</strong> — {{ item.abbreviated_name }}, {{ item.age_years }} anos ({{ item.gender }}) — Espera: {{ item.wait_minutes }} min — {{ item.status_label }}
+                        <form method="post" action="{% url 'care:accept_queue_item' queue_item_id=item.queue_item_id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="button-primary" type="submit">Aceitar revisão</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhum chamado aguardando na fila de revisão de prescrição.</p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

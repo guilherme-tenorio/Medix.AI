@@ -1,0 +1,42 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Nova triagem — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'triage:list' %}">Voltar</a>
+        </nav>
+    </header>
+
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">CONFIRMAÇÃO DE IDENTIDADE E ANAMNESE</p>
+        <h1>Iniciar triagem</h1>
+
+        <div class="alert-box" role="region" aria-label="Dados do paciente selecionado">
+            <p><strong>Paciente:</strong> {{ sujeito.full_name }}</p>
+            <p><strong>Idade:</strong> {{ sujeito.age_years }} anos</p>
+            <p><strong>Vínculo:</strong> {{ sujeito.relationship_label }}</p>
+            <p><strong>Alergias:</strong> {% if sujeito.clinical_profile.has_allergy %}{{ sujeito.clinical_profile.allergy_description }}{% else %}Nenhuma informada{% endif %}</p>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {{ form.dependent_id }}
+            {% for field in form %}
+                {% if field.name != 'dependent_id' %}
+                    <div class="field-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            <button class="button-primary" type="submit">Avançar na triagem</button>
+        </form>
+    </section>
+</main>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Central de Notificações — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Voltar</a>
+        </nav>
+    </header>
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">NOTIFICAÇÕES E ALERTAS</p>
+        <h1>Central de notificações</h1>
+
+        <form method="post" action="{% url 'notifications:clear_informative' %}">
+            {% csrf_token %}
+            <button class="button-secondary" type="submit">Limpar informativas lidas</button>
+        </form>
+
+        {% if notificacoes %}
+            <ul>
+                {% for n in notificacoes %}
+                    <li>
+                        <strong>[{{ n.get_priority_display }}] {{ n.subject }}</strong>
+                        ({{ n.get_channel_display }} — {{ n.get_status_display }}) — {{ n.body }}
+                        {% if n.deep_link %}<a href="{{ n.deep_link }}">Abrir</a>{% endif %}
+                        {% if not n.read_at %}
+                            <form method="post" action="{% url 'notifications:mark_read' notification_id=n.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button class="button-secondary" type="submit">Marcar como lida</button>
+                            </form>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhuma notificação na central.</p>
+        {% endif %}
+
+        <hr>
+        <h2>Preferências de canais</h2>
+        <p>Alertas urgentes obrigatórios não são suprimidos por preferências.</p>
+        <form method="post" action="{% url 'notifications:preferences' %}">
+            {% csrf_token %}
+            <label><input type="checkbox" name="allow_push" {% if preferencias.allow_push %}checked{% endif %}> Web Push</label><br>
+            <label><input type="checkbox" name="allow_sms" {% if preferencias.allow_sms %}checked{% endif %}> SMS</label><br>
+            <label><input type="checkbox" name="allow_email" {% if preferencias.allow_email %}checked{% endif %}> E-mail</label><br>
+            <label><input type="checkbox" name="allow_whatsapp" {% if preferencias.allow_whatsapp %}checked{% endif %}> WhatsApp</label><br>
+            <label><input type="checkbox" name="allow_informative" {% if preferencias.allow_informative %}checked{% endif %}> Avisos informativos</label><br>
+            <button class="button-primary" type="submit">Salvar preferências</button>
+        </form>
+    </section>
+</main>
+{% endblock %}

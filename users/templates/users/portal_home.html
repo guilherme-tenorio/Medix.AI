@@ -1,0 +1,41 @@
+{% extends 'users/base.html' %}
+
+{% block title %}{{ nome_portal }} — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark" aria-label="MEDIX.AI">
+            <span class="brand-mark" aria-hidden="true">+</span>
+            <span>MEDIX<span class="brand-accent">.AI</span></span>
+        </div>
+        <nav class="portal-actions" aria-label="Conta">
+            <a class="button-secondary" href="{% url 'users:password_change' %}">Alterar senha</a>
+            <form method="post" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+                <button class="button-secondary" type="submit">Sair</button>
+            </form>
+        </nav>
+    </header>
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">ACESSO AUTENTICADO</p>
+        <h1>{{ nome_portal }}</h1>
+        {% if request.user.role == 'patient' %}
+            <nav class="portal-actions" aria-label="Ações do paciente">
+                <a class="button-primary" href="{% url 'triage:list' %}">Triagem e sintomas</a>
+                <a class="button-secondary" href="{% url 'prescriptions:list' %}">Minhas receitas</a>
+                <a class="button-secondary" href="{% url 'records:timeline' %}">Prontuário</a>
+                <a class="button-secondary" href="{% url 'patients:profile' %}">Meu perfil clínico</a>
+                <a class="button-secondary" href="{% url 'patients:dependents_list' %}">Meus dependentes</a>
+            </nav>
+        {% elif request.user.role == 'professional' %}
+            <nav class="portal-actions" aria-label="Ações médicas">
+                <a class="button-primary" href="{% url 'care:queue_dashboard' %}">Fila clínica</a>
+                <a class="button-secondary" href="{% url 'professionals:availability' %}">Disponibilidade e plantão</a>
+            </nav>
+        {% else %}
+            <p>Este portal está sendo implementado conforme as especificações aprovadas.</p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

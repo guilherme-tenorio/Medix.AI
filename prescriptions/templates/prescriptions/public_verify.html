@@ -1,0 +1,35 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Verificação de Receita — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">AUTENTICIDADE DE RECEITA DIGITAL</p>
+        <h1>Conferência pública</h1>
+        {% if invalida %}
+            <p role="alert"><strong>Receita inválida ou código não encontrado.</strong></p>
+        {% else %}
+            <p><strong>Status:</strong> {{ verificacao.effective_status_label }}</p>
+            <p><strong>Médico:</strong> {{ verificacao.prescriber_name }} — CRM {{ verificacao.prescriber_crm }}</p>
+            <p><strong>Medicamento:</strong> {{ verificacao.medication_name }}</p>
+            <p><strong>Posologia:</strong> {{ verificacao.dosage_and_route }}</p>
+            <p><strong>Emitida em:</strong> {{ verificacao.issued_at|date:"d/m/Y H:i" }} | <strong>Validade:</strong> {{ verificacao.valid_until|date:"d/m/Y H:i" }}</p>
+            <p><strong>Assinatura ICP-Brasil:</strong> {% if verificacao.icp_signature_valid %}Válida{% else %}Inválida{% endif %}</p>
+            {% if verificacao.dispensed_at %}
+                <p><strong>Dispensada em:</strong> {{ verificacao.dispensed_at|date:"d/m/Y H:i" }}</p>
+            {% endif %}
+
+            {% if form %}
+                <hr>
+                <h2>Registrar dispensação única (Farmácia)</h2>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button class="button-primary" type="submit">Confirmar dispensação</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

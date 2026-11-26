@@ -1,0 +1,36 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Receita Digital — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'prescriptions:pdf' prescription_id=receita.pk %}">Baixar PDF</a>
+            <a class="button-secondary" href="{% url 'prescriptions:public_verify' token=receita.verification_token %}">Página de verificação (QR)</a>
+        </nav>
+    </header>
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">RECEITA DIGITAL ICP-BRASIL</p>
+        <h1>Receita #{{ receita.pk }}</h1>
+        <p><strong>Status:</strong> {{ receita.get_status_display }}</p>
+        <p><strong>Medicamento:</strong> {{ receita.medication_name }}</p>
+        <p><strong>Posologia e via:</strong> {{ receita.dosage_and_route }}</p>
+        <p><strong>Orientações:</strong> {{ receita.instructions|default:"Seguir orientação médica." }}</p>
+        <p><strong>Prescritor:</strong> {{ receita.prescriber.user.get_full_name|default:receita.prescriber.user.email }} — CRM {{ receita.prescriber.crm_number }}/{{ receita.prescriber.crm_uf }}</p>
+        <p><strong>Emissão:</strong> {{ receita.issued_at|date:"d/m/Y H:i" }} | <strong>Validade:</strong> {{ receita.valid_until|date:"d/m/Y H:i" }}</p>
+        <p><strong>Hash ICP-Brasil:</strong> <code>{{ receita.icp_signature_hash }}</code></p>
+
+        {% if eh_prescritor and receita.status == 'active' %}
+            <hr>
+            <h2>Revogar receita</h2>
+            <form method="post" action="{% url 'prescriptions:revoke' prescription_id=receita.pk %}">
+                {% csrf_token %}
+                {{ revoke_form.as_p }}
+                <button class="button-secondary" type="submit">Revogar receita</button>
+            </form>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

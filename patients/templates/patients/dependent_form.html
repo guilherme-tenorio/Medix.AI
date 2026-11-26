@@ -1,0 +1,40 @@
+{% extends 'users/base.html' %}
+
+{% block title %}{% if modo_edicao %}Editar{% else %}Cadastrar{% endif %} Dependente — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">DEPENDENTE</p>
+        <h1>{% if modo_edicao %}Editar dependente{% else %}Cadastrar dependente{% endif %}</h1>
+        <p>
+            Responsável vinculado automaticamente:
+            <strong>{{ responsavel.user.get_full_name }}</strong> |
+            CPF {{ responsavel.user.cpf }} |
+            Celular {{ responsavel.phone }} |
+            E-mail {{ responsavel.user.email }}
+        </p>
+        {% if modo_edicao %}
+            <p>CPF do dependente (imutável): <strong>{{ dependente.cpf }}</strong></p>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for field in form %}
+                <div class="field-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div role="alert">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button class="button-primary" type="submit">Salvar dependente</button>
+            <a class="button-secondary" href="{% url 'patients:dependents_list' %}">Cancelar</a>
+        </form>
+    </section>
+</main>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Histórico de acessos — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark" aria-label="MEDIX.AI">
+            <span class="brand-mark" aria-hidden="true">+</span>
+            <span>MEDIX<span class="brand-accent">.AI</span></span>
+        </div>
+        <nav class="portal-actions" aria-label="Administração">
+            <a class="button-secondary" href="{% url 'admin:index' %}">Voltar ao painel</a>
+            <form method="post" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+                <button class="button-secondary" type="submit">Sair</button>
+            </form>
+        </nav>
+    </header>
+
+    <section class="portal-card" aria-labelledby="access-history-title">
+        <p class="eyebrow eyebrow-blue">AUDITORIA DE SEGURANÇA</p>
+        <h1 id="access-history-title">Histórico de acessos</h1>
+        <p class="audit-description">Pesquise tentativas por período, identificador, perfil e resultado. Identificadores são comparados de forma protegida e não aparecem nos resultados.</p>
+
+        <form class="audit-filters" method="get">
+            <div class="audit-filter-grid">
+                {% for field in form %}
+                    <div class="field-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            {% if form.non_field_errors %}
+                <div class="form-alert" role="alert">
+                    {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+            <div class="audit-filter-actions">
+                <button class="button-primary" type="submit">Pesquisar acessos</button>
+                <a class="button-secondary" href="{% url 'audit:access_history' %}">Limpar filtros</a>
+            </div>
+        </form>
+
+        {% if pagina %}
+            <div class="audit-results-heading" aria-live="polite">
+                <h2>Resultados</h2>
+                <p>{{ pagina.paginator.count }} tentativa(s) encontrada(s).</p>
+            </div>
+            <div class="audit-table-wrap">
+                <table class="audit-table">
+                    <caption>Tentativas de autenticação; identificadores apresentados somente como impressão protegida.</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Data e hora</th>
+                            <th scope="col">Identificador protegido</th>
+                            <th scope="col">Perfil</th>
+                            <th scope="col">Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tentativa in pagina %}
+                            <tr>
+                                <td>{{ tentativa.occurred_at|date:'d/m/Y H:i:s' }}</td>
+                                <td><code>{{ tentativa.identifier_fingerprint|slice:':16' }}</code></td>
+                                <td>
+                                    {% if tentativa.role %}{{ tentativa.get_role_display }}{% else %}Não identificado{% endif %}
+                                </td>
+                                <td>{{ tentativa.get_result_display }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4">Nenhuma tentativa corresponde aos filtros informados.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if pagina.has_other_pages %}
+                <nav class="audit-pagination" aria-label="Paginação do histórico">
+                    {% if pagina.has_previous %}
+                        <a href="?{% if query_paginacao %}{{ query_paginacao }}&amp;{% endif %}page={{ pagina.previous_page_number }}">Anterior</a>
+                    {% endif %}
+                    <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+                    {% if pagina.has_next %}
+                        <a href="?{% if query_paginacao %}{{ query_paginacao }}&amp;{% endif %}page={{ pagina.next_page_number }}">Próxima</a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

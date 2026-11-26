@@ -1,0 +1,56 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Monitoramento Operacional — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'audit:admin_accounts' %}">Administradores</a>
+            <a class="button-secondary" href="{% url 'audit:access_history' %}">Auditoria de acessos</a>
+            <a class="button-secondary" href="/admin/">Admin</a>
+        </nav>
+    </header>
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">PAINEL OPERACIONAL</p>
+        <h1>Métricas ao vivo</h1>
+
+        {% if metricas.bottleneck_alerts %}
+            <div class="alert-box" role="alert">
+                <strong>Alertas de gargalo:</strong>
+                <ul>
+                    {% for alerta in metricas.bottleneck_alerts %}
+                        <li>{{ alerta }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <ul>
+            <li><strong>Fila de chat síncrono (aguardando):</strong> {{ metricas.chat_queue_waiting }}</li>
+            <li><strong>Fila de revisão de prescrição (aguardando):</strong> {{ metricas.prescription_queue_waiting }}</li>
+            <li><strong>Atendimentos em andamento:</strong> {{ metricas.in_progress_count }}</li>
+            <li><strong>Tempo médio de espera:</strong> {{ metricas.avg_wait_minutes }} min</li>
+            <li><strong>Emergências nas últimas 24h:</strong> {{ metricas.emergencies_last_24h }}</li>
+            <li><strong>Total de pareceres médicos registrados:</strong> {{ metricas.total_reviews }}</li>
+            <li><strong>Médicos homologados Online no plantão:</strong> {{ metricas.active_doctors_online }}</li>
+        </ul>
+
+        <h2>Últimos acessos a prontuário (trilha imutável)</h2>
+        {% if ultimos_acessos_prontuario %}
+            <ul>
+                {% for log in ultimos_acessos_prontuario %}
+                    <li>
+                        {{ log.accessed_at|date:"d/m/Y H:i:s" }} — {{ log.actor.email }}
+                        {% if log.crm_snapshot %}(CRM {{ log.crm_snapshot }}){% endif %}
+                        — {% if log.allowed %}Permitido{% else %}Negado{% endif %} ({{ log.reason }})
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhum acesso registrado.</p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

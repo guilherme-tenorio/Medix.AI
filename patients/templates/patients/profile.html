@@ -1,0 +1,39 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Meu Perfil Clínico — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">PERFIL DO TITULAR</p>
+        <h1>Dados cadastrais e perfil clínico</h1>
+        <p>CPF: {{ paciente.user.cpf }} | E-mail: {{ paciente.user.email }}</p>
+
+        {% if messages %}
+            <div role="status" aria-live="polite">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div role="alert">{{ form.non_field_errors }}</div>
+            {% endif %}
+            {% for field in form %}
+                <div class="field-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}
+                        <div role="alert">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button class="button-primary" type="submit">Salvar alterações</button>
+            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Voltar ao portal</a>
+        </form>
+    </section>
+</main>
+{% endblock %}

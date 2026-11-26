@@ -17,6 +17,15 @@ class User(AbstractUser):
         max_length=20,
         choices=Role.choices,
     )
+    failed_login_attempts = models.PositiveSmallIntegerField(
+        'tentativas de login malsucedidas',
+        default=0,
+    )
+    locked_until = models.DateTimeField('bloqueado até', blank=True, null=True)
+    must_change_password = models.BooleanField(
+        'deve trocar a senha no próximo acesso',
+        default=False,
+    )
 
     class Meta:
         verbose_name = 'usuário'

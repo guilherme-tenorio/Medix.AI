@@ -1,0 +1,33 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Contas Administrativas — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'audit:monitoring' %}">Monitoramento</a>
+            <a class="button-secondary" href="/admin/">Admin</a>
+        </nav>
+    </header>
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">GESTÃO ADMINISTRATIVA</p>
+        <h1>Administradores</h1>
+        <ul>
+            {% for adm in admins %}
+                <li>
+                    <strong>{{ adm.get_full_name|default:adm.email }}</strong> ({{ adm.email }}) —
+                    {% if adm.is_active %}Ativo{% else %}Inativo{% endif %}
+                    {% if adm.is_active %}
+                        <form method="post" action="{% url 'audit:deactivate_admin' admin_id=adm.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="button-secondary" type="submit">Desativar</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+</main>
+{% endblock %}

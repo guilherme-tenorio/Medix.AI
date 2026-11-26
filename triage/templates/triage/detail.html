@@ -1,0 +1,58 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Triagem {{ sessao.pk }} — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'triage:list' %}">Minhas triagens</a>
+        </nav>
+    </header>
+
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">PROTOCOLO DE MANCHESTER</p>
+        <h1>Triagem #{{ sessao.pk }}</h1>
+
+        <p><strong>Relato:</strong> {{ sessao.symptoms_description }}</p>
+        <p><strong>Início/duração:</strong> {{ sessao.symptom_onset }} | <strong>Intensidade:</strong> {{ sessao.pain_intensity }}/10</p>
+
+        {% if sessao.is_completed %}
+            <div class="alert-box" role="status">
+                <p><strong>Classificação de risco:</strong> {{ sessao.get_risk_color_display }}</p>
+                <p><strong>Encaminhamento:</strong> {{ sessao.get_routing_destination_display }}</p>
+                {% if sessao.ai_summary %}
+                    <p><strong>Resumo clínico:</strong> {{ sessao.ai_summary }}</p>
+                {% endif %}
+                {% if sessao.ai_guidance_text and sessao.routing_destination == 'ai_guidance' %}
+                    <p><strong>Orientação:</strong> {{ sessao.ai_guidance_text }}</p>
+                {% endif %}
+                {% if sessao.suggested_medication %}
+                    <p><strong>Sugestão para validação médica:</strong> {{ sessao.suggested_medication }}</p>
+                {% endif %}
+            </div>
+            <p>Esta triagem está concluída e é imutável. Para novos sintomas, inicie uma nova triagem.</p>
+        {% else %}
+            <h2>Perguntas complementares</h2>
+            <ol>
+                {% for pergunta in perguntas %}
+                    <li>{{ pergunta }}</li>
+                {% endfor %}
+            </ol>
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {% for field in form %}
+                    <div class="field-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+                <button class="button-primary" type="submit">Concluir triagem</button>
+            </form>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

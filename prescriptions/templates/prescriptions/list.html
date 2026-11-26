@@ -1,0 +1,31 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Minhas Receitas — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <header class="portal-header">
+        <div class="brand brand-dark"><span class="brand-mark">+</span><span>MEDIX<span class="brand-accent">.AI</span></span></div>
+        <nav class="portal-actions">
+            <a class="button-secondary" href="{% url 'users:patient_portal' %}">Portal do paciente</a>
+        </nav>
+    </header>
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">RECEITAS DIGITAIS</p>
+        <h1>Minhas receitas</h1>
+        {% if receitas %}
+            <ul>
+                {% for rec in receitas %}
+                    <li>
+                        <a href="{% url 'prescriptions:detail' prescription_id=rec.pk %}">
+                            {{ rec.issued_at|date:"d/m/Y H:i" }} — {{ rec.medication_name }} ({{ rec.get_status_display }})
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhuma receita emitida até o momento.</p>
+        {% endif %}
+    </section>
+</main>
+{% endblock %}

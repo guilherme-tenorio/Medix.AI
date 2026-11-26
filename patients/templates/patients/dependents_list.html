@@ -1,0 +1,43 @@
+{% extends 'users/base.html' %}
+
+{% block title %}Dependentes — MEDIX.AI{% endblock %}
+
+{% block body %}
+<main id="conteudo" class="portal-shell">
+    <section class="portal-card">
+        <p class="eyebrow eyebrow-blue">GESTÃO DE DEPENDENTES</p>
+        <h1>Meus dependentes</h1>
+        <p>Responsável: {{ responsavel.user.get_full_name }} (CPF {{ responsavel.user.cpf }})</p>
+
+        {% if messages %}
+            <div role="status" aria-live="polite">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <p><a class="button-primary" href="{% url 'patients:dependent_create' %}">Cadastrar dependente</a></p>
+
+        {% if dependentes %}
+            <ul>
+                {% for dependente in dependentes %}
+                    <li>
+                        <strong>{{ dependente.full_name }}</strong>
+                        ({{ dependente.get_legal_relationship_display }}) — CPF {{ dependente.cpf }}
+                        <a href="{% url 'patients:dependent_edit' dependente.pk %}">Editar</a>
+                        <form method="post" action="{% url 'patients:dependent_deactivate' dependente.pk %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button class="button-secondary" type="submit">Desativar</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Nenhum dependente ativo cadastrado.</p>
+        {% endif %}
+
+        <p><a class="button-secondary" href="{% url 'users:patient_portal' %}">Voltar ao portal</a></p>
+    </section>
+</main>
+{% endblock %}
